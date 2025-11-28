@@ -1,0 +1,3666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eagle Intercept0r - Tableau de Bord Professionnel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#1e90ff; --muted:#94a3b8; --glass: rgba(255,255,255,0.03);
+      --success:#10b981; --warning:#f59e0b; --danger:#ef4444; --sidebar-width: 280px;
+    }
+    html,body{
+      height:100%; margin:0; 
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
+      background:linear-gradient(180deg,#071029 0%, #0f1724 60%); 
+      color:#e6eef8;
+      overflow-x: hidden;
+    }
+    
+    /* Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(11, 18, 32, 0.95);
+      backdrop-filter: blur(10px);
+      height: 100vh;
+      position: fixed;
+      overflow-y: auto;
+      z-index: 1000;
+      border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .logo-container {
+      padding: 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      color: white;
+      box-shadow: 0 8px 30px rgba(30,144,255,0.12);
+      margin: 0 auto 12px;
+    }
+    
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .logo-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .nav-links {
+      padding: 20px 0;
+    }
+    
+    .nav-links li {
+      list-style: none;
+    }
+    
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #cbd5e0;
+      text-decoration: none;
+      transition: all 0.3s;
+      border-left: 4px solid transparent;
+    }
+    
+    .nav-links a:hover, .nav-links a.active {
+      background: rgba(255,255,255,0.03);
+      color: white;
+      border-left-color: var(--accent);
+    }
+    
+    .nav-links i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 24px;
+      transition: all 0.3s;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    
+    /* Cards and Containers */
+    .container{max-width:1100px; margin:0 auto;}
+    
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); 
+      padding:20px; 
+      border-radius:12px; 
+      box-shadow:0 6px 20px rgba(2,6,23,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+      margin-bottom: 20px;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .card-title {
+      font-size: 1.2em;
+      font-weight: 600;
+    }
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2em;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+    }
+    
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+    }
+    
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .stat-label {
+      font-size: 0.8em;
+      color: var(--muted);
+    }
+    
+    /* Search Section */
+    .search-row{
+      display:flex; 
+      gap:12px; 
+      margin-top:14px;
+    }
+    
+    input, select, textarea{
+      background:var(--glass); 
+      border:1px solid rgba(255,255,255,0.04); 
+      color:inherit; 
+      padding:10px 12px; 
+      border-radius:8px; 
+      outline:none; 
+      flex:1;
+      font-family: inherit;
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    button{
+      background:linear-gradient(90deg,var(--accent),#7c3aed); 
+      color:white; 
+      border:none; 
+      padding:10px 14px; 
+      border-radius:8px; 
+      cursor:pointer;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(30,144,255,0.3);
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(90deg, var(--danger), #dc2626);
+    }
+    
+    .btn-success {
+      background: linear-gradient(90deg, var(--success), #059669);
+    }
+    
+    .btn-warning {
+      background: linear-gradient(90deg, var(--warning), #d97706);
+    }
+    
+    /* Tabs */
+    .tabs{
+      display:flex; 
+      gap:8px; 
+      margin-bottom:16px;
+      flex-wrap: wrap;
+    }
+    
+    .tab{
+      padding:8px 16px; 
+      border-radius:8px; 
+      cursor:pointer; 
+      background:transparent; 
+      color:var(--muted);
+      transition: all 0.3s;
+    }
+    
+    .tab.active{
+      background:rgba(255,255,255,0.03); 
+      color:white; 
+      box-shadow:0 4px 12px rgba(0,0,0,0.4);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Results and Data */
+    .grid{
+      display:grid; 
+      grid-template-columns: 320px 1fr; 
+      gap:16px; 
+      margin-top:18px;
+    }
+    
+    .left{
+      display:flex; 
+      flex-direction:column; 
+      gap:12px;
+    }
+    
+    .meta{
+      font-size:13px; 
+      color:var(--muted);
+    }
+    
+    .target-card{
+      padding:16px; 
+      border-radius:10px; 
+      background: linear-gradient(180deg, rgba(255,255,255,0.012), rgba(255,255,255,0.006));
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    
+    .files-list{
+      display:grid; 
+      gap:8px; 
+      margin-top:8px;
+    }
+    
+    .file{
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center; 
+      padding:10px; 
+      border-radius:8px; 
+      background:rgba(255,255,255,0.02);
+    }
+    
+    .log-area{
+      height:220px; 
+      overflow:auto; 
+      background:rgba(0,0,0,0.25); 
+      padding:12px; 
+      border-radius:8px; 
+      color:var(--muted); 
+      font-family:monospace; 
+      font-size:13px;
+    }
+    
+    .progress-wrap{
+      margin-top:12px; 
+      background:rgba(255,255,255,0.03); 
+      border-radius:8px; 
+      padding:6px;
+    }
+    
+    .progress{
+      height:12px; 
+      background:rgba(0,0,0,0.3); 
+      border-radius:8px; 
+      overflow:hidden;
+    }
+    
+    .progress > i{
+      display:block; 
+      height:100%; 
+      width:0%; 
+      background:linear-gradient(90deg,var(--accent),#7c3aed);
+      transition: width 0.3s;
+    }
+    
+    .countdown{
+      font-weight:700; 
+      margin-left:8px;
+    }
+    
+    /* Data Visualization */
+    .data-visualization {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .map-container {
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      padding: 20px;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    
+    .activity-feed {
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      padding: 20px;
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+    
+    .activity-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+    }
+    
+    .activity-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      color: var(--accent);
+    }
+    
+    /* Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    
+    .data-table th, .data-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .data-table th {
+      background: rgba(255,255,255,0.02);
+      font-weight: 600;
+      color: var(--muted);
+    }
+    
+    .data-table tr:hover {
+      background: rgba(255,255,255,0.02);
+    }
+    
+    /* User Management */
+    .user-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .user-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .user-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .user-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.7em;
+      font-weight: 600;
+    }
+    
+    .badge-admin {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+    
+    .badge-client {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+    
+    .badge-technician {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+    }
+    
+    /* Login Overlay */
+    #loginOverlay{
+      position:fixed; 
+      top:0; 
+      left:0; 
+      right:0; 
+      bottom:0;
+      background:rgba(0,0,0,0.92);
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+      z-index:9999;
+    }
+    
+    #loginBox{
+      background:var(--card);
+      padding:28px 22px; 
+      border-radius:12px;
+      box-shadow:0 8px 40px rgba(0,0,0,0.7);
+      width:340px; 
+      text-align:center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    #loginBox .logo{
+      width:72px; 
+      height:72px; 
+      border-radius:12px; 
+      margin:0 auto 12px; 
+      font-size:22px;
+    }
+    
+    #loginBox h2{
+      margin:8px 0 12px; 
+      font-size:18px;
+    }
+    
+    #loginBox input[type="text"], #loginBox input[type="password"]{
+      width:100%; 
+      margin:8px 0; 
+      padding:10px; 
+      border-radius:8px; 
+      border:1px solid rgba(255,255,255,0.1); 
+      background:var(--glass); 
+      color:white;
+    }
+    
+    #loginBox button{
+      margin-top:12px; 
+      width:100%; 
+      padding:10px; 
+      border:none; 
+      border-radius:8px; 
+      background:linear-gradient(90deg,var(--accent),#7c3aed); 
+      color:white; 
+      font-weight:600; 
+      cursor:pointer;
+    }
+    
+    #loginError{
+      color:#f87171; 
+      font-size:13px; 
+      margin-top:10px; 
+      display:none;
+    }
+    
+    footer{
+      margin-top:18px; 
+      color:var(--muted); 
+      font-size:13px;
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    /* Client Dashboard */
+    .client-welcome {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .client-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .client-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .feature-card {
+      background: rgba(255,255,255,0.02);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      color: white;
+      font-size: 1.5em;
+    }
+    
+    /* Detailed Results */
+    .results-container {
+      margin-top: 20px;
+    }
+    
+    .result-details {
+      background: rgba(255,255,255,0.02);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .detail-section {
+      margin-bottom: 20px;
+    }
+    
+    .detail-section h4 {
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .detail-item {
+      background: rgba(255,255,255,0.01);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    
+    /* Nouvelles sections */
+    .target-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .target-item {
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .target-item:hover {
+      background: rgba(255,255,255,0.05);
+      transform: translateY(-2px);
+    }
+    
+    .target-item.selected {
+      border-color: var(--accent);
+      background: rgba(30,144,255,0.1);
+    }
+    
+    .target-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .target-info {
+      font-size: 0.85em;
+      color: var(--muted);
+    }
+    
+    .gps-timeline {
+      margin-top: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .gps-point {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .gps-point:last-child {
+      border-bottom: none;
+    }
+    
+    .gps-time {
+      font-size: 0.8em;
+      color: var(--muted);
+    }
+    
+    .security-settings {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .setting-group {
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .setting-item {
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .setting-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255,255,255,0.1);
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: var(--accent);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* Responsive */
+    @media(max-width:1024px){
+      .grid{grid-template-columns:1fr;} 
+      .data-visualization { grid-template-columns: 1fr; }
+      .user-grid { grid-template-columns: 1fr; }
+      .client-features { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .security-settings { grid-template-columns: 1fr; }
+    }
+    
+    @media(max-width:880px){ 
+      .search-row{flex-direction:column;} 
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .client-stats { grid-template-columns: 1fr; }
+      .target-list { grid-template-columns: 1fr; }
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 70px;
+        overflow: visible;
+      }
+      .sidebar .logo-text, .sidebar .logo-subtitle, .nav-links span {
+        display: none;
+      }
+      .main-content {
+        margin-left: 70px;
+      }
+      .menu-toggle {
+        display: block;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay" aria-hidden="false">
+    <div id="loginBox" role="dialog" aria-labelledby="loginTitle">
+      <div class="logo">E@</div>
+      <h2 id="loginTitle">Connexion E@gle Intercept0r</h2>
+      <input type="text" id="loginUser" placeholder="Email ou nom d'utilisateur">
+      <input type="password" id="loginPass" placeholder="Mot de passe">
+      <button id="loginBtn" type="button">Se connecter</button>
+      <div id="loginError">Identifiants incorrects</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="mainContent" style="display:none">
+    <div class="app-container">
+      <!-- Sidebar Navigation -->
+      <div class="sidebar" id="sidebar">
+        <div class="logo-container">
+          <div class="logo">E@</div>
+          <div class="logo-text">Eagle Intercept0r</div>
+          <div class="logo-subtitle">Knox Cloud Integration</div>
+        </div>
+        <ul class="nav-links">
+          <li><a href="#" class="active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Tableau de Bord</span></a></li>
+          <li><a href="#" data-tab="search"><i class="fas fa-search"></i> <span>Recherche Cible</span></a></li>
+          <li><a href="#" data-tab="acquisition"><i class="fas fa-download"></i> <span>Acquisition</span></a></li>
+          <li><a href="#" data-tab="eaglereader"><i class="fas fa-book-reader"></i> <span>EagleReader</span></a></li>
+          <li><a href="#" data-tab="mlocator"><i class="fas fa-map-marked-alt"></i> <span>MLocator</span></a></li>
+          <li><a href="#" data-tab="reports"><i class="fas fa-chart-bar"></i> <span>Rapports</span></a></li>
+          <li><a href="#" data-tab="security"><i class="fas fa-shield-alt"></i> <span>Sécurité</span></a></li>
+          <li id="adminSection" style="display:none"><a href="#" data-tab="users"><i class="fas fa-users-cog"></i> <span>Gestion Utilisateurs</span></a></li>
+          <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span></a></li>
+        </ul>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+          <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2 id="pageTitle">Tableau de Bord</h2>
+          <div class="user-info">
+            <div class="avatar" id="userAvatar">AD</div>
+            <div>
+              <div id="userDisplayName">Admin User</div>
+              <div style="font-size: 0.8em; color: var(--muted);" id="userRole">Administrateur</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <!-- Dashboard Tab - Version Admin -->
+          <div class="tab-content active" id="dashboard">
+            <div id="adminDashboard">
+              <!-- Contenu du tableau de bord admin existant -->
+              <div class="dashboard-grid">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Cibles Actives</div>
+                    <div class="card-icon">
+                      <i class="fas fa-users"></i>
+                    </div>
+                  </div>
+                  <div class="stats">
+                    <div class="stat-item">
+                      <div class="stat-value" id="adminTargetCount">5</div>
+                      <div class="stat-label">Cibles surveillées</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value" id="adminDataCount">15</div>
+                      <div class="stat-label">Données collectées</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Acquisition</div>
+                    <div class="card-icon">
+                      <i class="fas fa-download"></i>
+                    </div>
+                  </div>
+                  <div class="stats">
+                    <div class="stat-item">
+                      <div class="stat-value">87%</div>
+                      <div class="stat-label">Taux de réussite</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value">24/7</div>
+                      <div class="stat-label">Surveillance active</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Sécurité</div>
+                    <div class="card-icon">
+                      <i class="fas fa-shield-alt"></i>
+                    </div>
+                  </div>
+                  <div class="stats">
+                    <div class="stat-item">
+                      <div class="stat-value">AES-512</div>
+                      <div class="stat-label">Chiffrement</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value">100%</div>
+                      <div class="stat-label">Conformité</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Performances</div>
+                    <div class="card-icon">
+                      <i class="fas fa-chart-line"></i>
+                    </div>
+                  </div>
+                  <div class="stats">
+                    <div class="stat-item">
+                      <div class="stat-value">99.8%</div>
+                      <div class="stat-label">Disponibilité</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value">2.1s</div>
+                      <div class="stat-label">Temps de réponse</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="data-visualization">
+                <div class="map-container">
+                  <i class="fas fa-globe-americas" style="font-size: 3em; margin-bottom: 20px; color: var(--accent);"></i>
+                  <h3>Carte Géographique MLocator</h3>
+                  <p>Visualisation des positions des cibles en temps réel</p>
+                </div>
+                <div class="activity-feed">
+                  <h3 style="margin-bottom: 15px;">Activité Récente</h3>
+                  <div class="activity-item">
+                    <div class="activity-icon">
+                      <i class="fas fa-sms"></i>
+                    </div>
+                    <div>
+                      <div>Nouveau SMS intercepté - Cible: KF</div>
+                      <div class="meta">Il y a 2 minutes</div>
+                    </div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-icon">
+                      <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                      <div>Appel entrant enregistré - Cible: BELO</div>
+                      <div class="meta">Il y a 5 minutes</div>
+                    </div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-icon">
+                      <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div>
+                      <div>Position mise à jour - Cible: SOULAN</div>
+                      <div class="meta">Il y a 10 minutes</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dashboard Tab - Version Client -->
+            <div id="clientDashboard" style="display:none">
+              <div class="client-welcome">
+                <h1>Bienvenue sur Eagle Intercept0r</h1>
+                <p class="meta">Votre plateforme de surveillance professionnelle</p>
+                
+                <div class="client-stats">
+                  <div class="card">
+                    <div class="card-header">
+                      <div class="card-title">Vos Cibles</div>
+                      <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                      </div>
+                    </div>
+                    <div class="stats">
+                      <div class="stat-item">
+                        <div class="stat-value" id="clientTargetCount">2</div>
+                        <div class="stat-label">Cibles actives</div>
+                      </div>
+                      <div class="stat-item">
+                        <div class="stat-value" id="clientDataCount">8</div>
+                        <div class="stat-label">Données collectées</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card">
+                    <div class="card-header">
+                      <div class="card-title">Statut</div>
+                      <div class="card-icon">
+                        <i class="fas fa-check-circle"></i>
+                      </div>
+                    </div>
+                    <div class="stats">
+                      <div class="stat-item">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Service actif</div>
+                      </div>
+                      <div class="stat-item">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Alertes</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="client-features">
+                  <div class="feature-card">
+                    <div class="feature-icon">
+                      <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Recherche de Cibles</h3>
+                    <p>Recherchez et localisez vos cibles par IMEI, numéro ou identifiant</p>
+                    <button onclick="showTab('search')">Commencer</button>
+                  </div>
+                  
+                  <div class="feature-card">
+                    <div class="feature-icon">
+                      <i class="fas fa-download"></i>
+                    </div>
+                    <h3>Acquisition de Données</h3>
+                    <p>Collectez des données en temps réel depuis vos appareils cibles</p>
+                    <button onclick="showTab('acquisition')">Configurer</button>
+                  </div>
+                  
+                  <div class="feature-card">
+                    <div class="feature-icon">
+                      <i class="fas fa-book-reader"></i>
+                    </div>
+                    <h3>EagleReader</h3>
+                    <p>Consultez et analysez les données collectées</p>
+                    <button onclick="showTab('eaglereader')">Ouvrir</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Users Management Tab (Admin seulement) -->
+          <div class="tab-content" id="users">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Gestion des Utilisateurs</div>
+                <div class="card-icon">
+                  <i class="fas fa-users-cog"></i>
+                </div>
+              </div>
+              
+              <div class="tabs">
+                <div class="tab active" data-users-tab="list">Liste des Utilisateurs</div>
+                <div class="tab" data-users-tab="create">Créer un Utilisateur</div>
+                <div class="tab" data-users-tab="permissions">Gestion des Permissions</div>
+              </div>
+              
+              <!-- Liste des utilisateurs -->
+              <div class="tab-content active" id="users-list">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                  <h3>Utilisateurs du système</h3>
+                  <button id="refreshUsers"><i class="fas fa-sync-alt"></i> Actualiser</button>
+                </div>
+                
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Email</th>
+                      <th>Nom d'utilisateur</th>
+                      <th>Rôle</th>
+                      <th>Date création</th>
+                      <th>Statut</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody">
+                    <!-- Les utilisateurs seront chargés ici dynamiquement -->
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Création d'utilisateur -->
+              <div class="tab-content" id="users-create">
+                <h3>Créer un nouvel utilisateur</h3>
+                <div class="user-grid">
+                  <div class="user-form">
+                    <div class="form-group">
+                      <label for="newUserName">Nom complet *</label>
+                      <input type="text" id="newUserName" placeholder="Nom et prénom">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="newUserEmail">Email *</label>
+                      <input type="text" id="newUserEmail" placeholder="adresse@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="newUserUsername">Nom d'utilisateur *</label>
+                      <input type="text" id="newUserUsername" placeholder="Nom pour la connexion">
+                      <div class="meta">Ce nom sera utilisé pour se connecter</div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="newUserRole">Rôle *</label>
+                      <select id="newUserRole">
+                        <option value="client">Client</option>
+                        <option value="technician">Technicien</option>
+                        <option value="admin">Administrateur</option>
+                      </select>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="newUserPassword">Mot de passe *</label>
+                      <input type="password" id="newUserPassword" placeholder="Mot de passe sécurisé">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="newUserConfirmPassword">Confirmer le mot de passe *</label>
+                      <input type="password" id="newUserConfirmPassword" placeholder="Répéter le mot de passe">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="newUserPermissions">Permissions</label>
+                      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                        <label><input type="checkbox" name="permissions" value="search" checked> Recherche de cibles</label>
+                        <label><input type="checkbox" name="permissions" value="acquisition" checked> Acquisition de données</label>
+                        <label><input type="checkbox" name="permissions" value="eaglereader"> Lecture EagleReader</label>
+                        <label><input type="checkbox" name="permissions" value="mlocator"> Géolocalisation MLocator</label>
+                        <label><input type="checkbox" name="permissions" value="reports"> Génération de rapports</label>
+                      </div>
+                    </div>
+                    
+                    <button id="createUserBtn" class="btn-success"><i class="fas fa-user-plus"></i> Créer l'utilisateur</button>
+                  </div>
+                  
+                  <div>
+                    <h4>Informations sur les rôles</h4>
+                    <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px;">
+                      <div style="margin-bottom: 12px;">
+                        <span class="user-badge badge-admin">Administrateur</span>
+                        <p class="meta">Accès complet à toutes les fonctionnalités et gestion des utilisateurs.</p>
+                      </div>
+                      <div style="margin-bottom: 12px;">
+                        <span class="user-badge badge-technician">Technicien</span>
+                        <p class="meta">Accès aux fonctionnalités techniques mais pas à la gestion des utilisateurs.</p>
+                      </div>
+                      <div>
+                        <span class="user-badge badge-client">Client</span>
+                        <p class="meta">Accès limité aux fonctionnalités selon les permissions accordées.</p>
+                      </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Identifiants de test</h4>
+                    <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                      <div class="meta"><strong>Admin:</strong> EIleonkonan / TCk8cQn4</div>
+                      <div class="meta"><strong>Admin:</strong> bernardderrienlbv / Ben29odet95?</div>
+                      <div class="meta"><strong>Technicien:</strong> pierre.tech / Tech123!</div>
+                      <div class="meta"><strong>Client:</strong> entreprise.client / Client123!</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Gestion des permissions -->
+              <div class="tab-content" id="users-permissions">
+                <h3>Gestion des Permissions par Rôle</h3>
+                <div class="user-grid">
+                  <div>
+                    <h4>Permissions des rôles</h4>
+                    <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px;">
+                      <div style="margin-bottom: 15px;">
+                        <h5>Administrateur</h5>
+                        <p class="meta">Toutes les permissions sont activées par défaut.</p>
+                      </div>
+                      <div style="margin-bottom: 15px;">
+                        <h5>Technicien</h5>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                          <label><input type="checkbox" checked disabled> Recherche de cibles</label>
+                          <label><input type="checkbox" checked disabled> Acquisition de données</label>
+                          <label><input type="checkbox" checked disabled> Lecture EagleReader</label>
+                          <label><input type="checkbox" checked disabled> Géolocalisation MLocator</label>
+                          <label><input type="checkbox" checked disabled> Génération de rapports</label>
+                          <label><input type="checkbox" disabled> Gestion des utilisateurs</label>
+                        </div>
+                      </div>
+                      <div>
+                        <h5>Client</h5>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                          <label><input type="checkbox" checked> Recherche de cibles</label>
+                          <label><input type="checkbox" checked> Acquisition de données</label>
+                          <label><input type="checkbox"> Lecture EagleReader</label>
+                          <label><input type="checkbox"> Géolocalisation MLocator</label>
+                          <label><input type="checkbox"> Génération de rapports</label>
+                          <label><input type="checkbox" disabled> Gestion des utilisateurs</label>
+                        </div>
+                      </div>
+                    </div>
+                    <button style="margin-top: 15px;"><i class="fas fa-save"></i> Sauvegarder les permissions</button>
+                  </div>
+                  
+                  <div>
+                    <h4>Journal des modifications</h4>
+                    <div class="log-area">
+                      <div>2023-11-05 14:30 - Permissions mises à jour pour le rôle Client</div>
+                      <div>2023-11-05 12:15 - Nouvel utilisateur créé: client@entreprise.com</div>
+                      <div>2023-11-04 16:45 - Rôle modifié pour pierre.tech → Technicien</div>
+                      <div>2023-11-04 10:20 - Utilisateur supprimé: jean.dupont@oldcompany.com</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Tab - Version améliorée -->
+          <div class="tab-content" id="search">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Recherche Avancée de Cible</div>
+                <div class="card-icon">
+                  <i class="fas fa-search"></i>
+                </div>
+              </div>
+              
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap">
+                <div style="flex:1">
+                  <div class="search-row">
+                    <select id="searchType" title="Type">
+                      <option value="imei">IMEI</option>
+                      <option value="sn">Numéro de série (SN)</option>
+                      <option value="phone">Numéro de téléphone</option>
+                      <option value="mac">Adresse MAC</option>
+                    </select>
+                    <input id="searchInput" placeholder="Entrez IMEI / SN / téléphone..." />
+                    <button id="searchBtn">Lancer la recherche</button>
+                  </div>
+                  <div class="meta" style="margin-top:8px">Sélectionner le type d'identifiant et le saisir</div>
+                </div>
+              </div>
+
+              <!-- Barre de progression -->
+              <div class="progress-wrap" id="searchProgressWrap" style="display:none; margin-top:20px">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <div style="flex:1; margin-right:12px">
+                    <div class="progress"><i id="searchProgressBar"></i></div>
+                  </div>
+                  <div class="countdown" id="searchCountdown">--:--</div>
+                </div>
+                <div class="meta" style="margin-top:6px" id="searchStatus">Initialisation de la recherche...</div>
+              </div>
+
+              <!-- Résultats de recherche -->
+              <div class="results-container" id="searchResults" style="display:none">
+                <h3 style="margin:20px 0 15px">Résultats de la Recherche</h3>
+                
+                <div class="result-details">
+                  <div class="detail-section">
+                    <h4>Informations Générales</h4>
+                    <div class="detail-grid">
+                      <div class="detail-item">
+                        <div class="meta">Identifiant</div>
+                        <div id="result-id">--</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="meta">Type</div>
+                        <div id="result-type">--</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="meta">Statut</div>
+                        <div id="result-status" style="color:#10b981">--</div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="meta">Dernière activité</div>
+                        <div id="result-last-activity">--</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h4>Données Disponibles</h4>
+                    <div id="result-data" class="detail-grid">
+                      <!-- Les données disponibles seront ajoutées ici dynamiquement -->
+                    </div>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h4>Actions</h4>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap">
+                      <button id="acquireDataBtn" class="btn-success"><i class="fas fa-download"></i> Acquérir les données</button>
+                      <button id="trackLocationBtn"><i class="fas fa-map-marker-alt"></i> Suivre la localisation</button>
+                      <button id="generateReportBtn"><i class="fas fa-file-pdf"></i> Générer rapport</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acquisition Tab - Version améliorée -->
+          <div class="tab-content" id="acquisition">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Acquisition des Données</div>
+                <div class="card-icon">
+                  <i class="fas fa-download"></i>
+                </div>
+              </div>
+              
+              <div class="tabs">
+                <div class="tab active" data-acquisition-tab="manual">Acquisition Manuelle</div>
+                <div class="tab" data-acquisition-tab="auto">Acquisition Automatique</div>
+                <div class="tab" data-acquisition-tab="status">Statut d'Acquisition</div>
+              </div>
+              
+              <!-- Acquisition Manuelle -->
+              <div class="tab-content active" id="manual-acquisition">
+                <p>Sélectionnez une cible et le type de données à acquérir :</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                  <div>
+                    <label for="targetSelect" class="meta">Cible</label>
+                    <select id="targetSelect">
+                      <option value="">-- Sélectionner une cible --</option>
+                      <!-- Les cibles seront chargées dynamiquement -->
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label for="dataType" class="meta">Type de données</label>
+                    <select id="dataType">
+                      <option value="all">Toutes les données</option>
+                      <option value="calls">Appels</option>
+                      <option value="sms">SMS/MMS</option>
+                      <option value="location">Localisation GPS</option>
+                      <option value="media">Photos & Médias</option>
+                      <option value="messaging">Messageries</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                  <button id="startAcquisitionBtn" style="margin-right: 10px;"><i class="fas fa-play-circle"></i> Lancer l'acquisition</button>
+                  <button class="btn-danger" id="stopAcquisitionBtn" disabled><i class="fas fa-stop-circle"></i> Arrêter l'acquisition</button>
+                </div>
+
+                <!-- Barre de progression acquisition -->
+                <div class="progress-wrap" id="acquisitionProgressWrap" style="display:none; margin-top:20px">
+                  <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <div style="flex:1; margin-right:12px">
+                      <div class="progress"><i id="acquisitionProgressBar"></i></div>
+                    </div>
+                    <div class="countdown" id="acquisitionCountdown">--:--</div>
+                  </div>
+                  <div class="meta" style="margin-top:6px" id="acquisitionStatus">Préparation de l'acquisition...</div>
+                </div>
+              </div>
+              
+              <!-- Acquisition Automatique -->
+              <div class="tab-content" id="auto-acquisition">
+                <p>Configuration de l'acquisition automatique :</p>
+                
+                <div style="margin-top: 20px;">
+                  <div style="margin-bottom: 15px;">
+                    <label>
+                      <input type="checkbox" id="autoRealtime" checked> Acquisition en temps réel
+                    </label>
+                  </div>
+                  
+                  <div style="margin-bottom: 15px;">
+                    <label>
+                      <input type="checkbox" id="autoBatch"> Traitement par lots (archives)
+                    </label>
+                  </div>
+                  
+                  <div style="margin-bottom: 15px;">
+                    <label for="syncInterval" class="meta">Intervalle de synchronisation</label>
+                    <select id="syncInterval">
+                      <option value="5">5 minutes</option>
+                      <option value="15">15 minutes</option>
+                      <option value="30">30 minutes</option>
+                      <option value="60">1 heure</option>
+                      <option value="240">4 heures</option>
+                      <option value="1440">24 heures</option>
+                    </select>
+                  </div>
+                  
+                  <div style="margin-bottom: 15px;">
+                    <label for="dataRetention" class="meta">Rétention des données</label>
+                    <select id="dataRetention">
+                      <option value="7">7 jours</option>
+                      <option value="30">30 jours</option>
+                      <option value="90">90 jours</option>
+                      <option value="365">1 an</option>
+                      <option value="0">Indéfiniment</option>
+                    </select>
+                  </div>
+                  
+                  <button id="saveAutoConfig"><i class="fas fa-save"></i> Sauvegarder la configuration</button>
+                </div>
+              </div>
+              
+              <!-- Statut d'Acquisition -->
+              <div class="tab-content" id="acquisition-status">
+                <h3>Statut des Acquisitions en Cours</h3>
+                <div id="acquisitionStatusList">
+                  <div style="text-align:center; padding:40px 20px; color:var(--muted)">
+                    <i class="fas fa-info-circle" style="font-size:2em; margin-bottom:10px"></i>
+                    <p>Aucune acquisition en cours</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EagleReader Tab - AMÉLIORÉ AVEC LISTE DES CIBLES -->
+          <div class="tab-content" id="eaglereader">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">EagleReader - Lecture des Données</div>
+                <div class="card-icon">
+                  <i class="fas fa-book-reader"></i>
+                </div>
+              </div>
+              
+              <div class="tabs">
+                <div class="tab active" data-reader-tab="targets">Cibles Disponibles</div>
+                <div class="tab" data-reader-tab="data">Données Collectées</div>
+                <div class="tab" data-reader-tab="add">Ajouter une Cible</div>
+              </div>
+              
+              <!-- Liste des cibles -->
+              <div class="tab-content active" id="reader-targets">
+                <h3>Vos Cibles Surveillées</h3>
+                <p class="meta">Sélectionnez une cible pour afficher ses données</p>
+                
+                <div class="target-list" id="userTargetsList">
+                  <!-- Les cibles seront chargées ici dynamiquement -->
+                </div>
+                
+                <div id="noTargetsMessage" style="text-align:center; padding:40px 20px; color:var(--muted); display:none">
+                  <i class="fas fa-info-circle" style="font-size:2em; margin-bottom:10px"></i>
+                  <p>Aucune cible disponible. Effectuez d'abord une recherche et une acquisition.</p>
+                </div>
+              </div>
+              
+              <!-- Données d'une cible sélectionnée -->
+              <div class="tab-content" id="reader-data">
+                <h3 id="selectedTargetName">Données de la Cible</h3>
+                
+                <div class="tabs">
+                  <div class="tab active" data-data-tab="calls">Appels</div>
+                  <div class="tab" data-data-tab="sms">SMS/MMS</div>
+                  <div class="tab" data-data-tab="locations">Localisations</div>
+                  <div class="tab" data-data-tab="media">Médias</div>
+                  <div class="tab" data-data-tab="messaging">Messageries</div>
+                </div>
+                
+                <div class="tab-content active" id="data-calls">
+                  <div class="log-area" id="callsData">
+                    Sélectionnez une cible pour afficher ses données d'appels
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="data-sms">
+                  <div class="log-area" id="smsData">
+                    Sélectionnez une cible pour afficher ses SMS
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="data-locations">
+                  <div class="log-area" id="locationsData">
+                    Sélectionnez une cible pour afficher ses localisations
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="data-media">
+                  <div class="log-area" id="mediaData">
+                    Sélectionnez une cible pour afficher ses médias
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="data-messaging">
+                  <div class="log-area" id="messagingData">
+                    Sélectionnez une cible pour afficher ses messages d'applications
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Ajouter une cible -->
+              <div class="tab-content" id="reader-add">
+                <h3>Ajouter une Nouvelle Cible</h3>
+                
+                <div class="user-form">
+                  <div class="form-group">
+                    <label for="newTargetName">Nom de la cible *</label>
+                    <input type="text" id="newTargetName" placeholder="Nom ou identifiant">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="newTargetPhone">Numéro de téléphone</label>
+                    <input type="text" id="newTargetPhone" placeholder="+33...">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="newTargetImei">IMEI</label>
+                    <input type="text" id="newTargetImei" placeholder="Numéro IMEI">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="newTargetModel">Modèle d'appareil</label>
+                    <input type="text" id="newTargetModel" placeholder="Samsung S24, iPhone 15...">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="newTargetDescription">Description</label>
+                    <textarea id="newTargetDescription" placeholder="Informations supplémentaires sur la cible"></textarea>
+                  </div>
+                  
+                  <button id="addTargetBtn" class="btn-success"><i class="fas fa-plus"></i> Ajouter la cible</button>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                  <h4>Importer des cibles</h4>
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="file" id="importTargetsFile" accept=".csv,.txt,.json" style="flex: 1;">
+                    <button id="importTargetsBtn"><i class="fas fa-file-import"></i> Importer</button>
+                  </div>
+                  <div class="meta">Formats supportés: CSV, TXT, JSON</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MLocator Tab - AMÉLIORÉ AVEC HISTORIQUE GPS -->
+          <div class="tab-content" id="mlocator">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">MLocator - Géolocalisation</div>
+                <div class="card-icon">
+                  <i class="fas fa-map-marked-alt"></i>
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                <div>
+                  <h3>Cibles Disponibles</h3>
+                  <div class="target-list" id="mlocatorTargetsList">
+                    <!-- Les cibles seront chargées ici dynamiquement -->
+                  </div>
+                  
+                  <div id="noMlocatorTargets" style="text-align:center; padding:20px; color:var(--muted); display:none">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Aucune cible avec données de localisation</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3>Visualisation Géographique</h3>
+                  <div class="map-container">
+                    <i class="fas fa-globe-americas" style="font-size: 3em; margin-bottom: 20px; color: var(--accent);"></i>
+                    <h3 id="mapTargetName">Sélectionnez une cible</h3>
+                    <p id="mapTargetInfo">Choisissez une cible pour visualiser ses positions</p>
+                  </div>
+                  
+                  <div class="gps-timeline" id="gpsTimeline">
+                    <!-- L'historique GPS sera chargé ici dynamiquement -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reports Tab - AMÉLIORÉ AVEC RAPPORTS PERSISTANTS -->
+          <div class="tab-content" id="reports">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Rapports - Analyse des Données</div>
+                <div class="card-icon">
+                  <i class="fas fa-chart-bar"></i>
+                </div>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                <div>
+                  <h3>Génération de Rapports</h3>
+                  
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="reportTarget" class="meta">Cible</label>
+                    <select id="reportTarget">
+                      <option value="">-- Sélectionner une cible --</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="reportType" class="meta">Type de rapport</label>
+                    <select id="reportType">
+                      <option value="full">Rapport complet</option>
+                      <option value="calls">Activité d'appels</option>
+                      <option value="sms">Activité SMS</option>
+                      <option value="locations">Mouvements</option>
+                      <option value="timeline">Chronologie</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="reportPeriod" class="meta">Période</label>
+                    <select id="reportPeriod">
+                      <option value="7">7 derniers jours</option>
+                      <option value="30">30 derniers jours</option>
+                      <option value="90">90 derniers jours</option>
+                      <option value="all">Toute la période</option>
+                    </select>
+                  </div>
+                  
+                  <button id="generateReportBtn"><i class="fas fa-file-pdf"></i> Générer le rapport</button>
+                  
+                  <div style="margin-top: 20px;">
+                    <h4>Rapports Sauvegardés</h4>
+                    <div class="files-list" id="savedReportsList">
+                      <!-- Les rapports sauvegardés seront chargés ici -->
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3>Aperçu du Rapport</h3>
+                  <div class="log-area" id="reportPreview" style="height: 500px;">
+                    Sélectionnez une cible et générez un rapport pour voir l'aperçu
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security Tab - NOUVEAU ONGLET SÉCURITÉ -->
+          <div class="tab-content" id="security">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Paramètres de Sécurité</div>
+                <div class="card-icon">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+              </div>
+              
+              <div class="security-settings">
+                <div class="setting-group">
+                  <h3>Authentification</h3>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Authentification à deux facteurs</div>
+                      <div class="meta">Exiger une vérification supplémentaire pour la connexion</div>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="twoFactorAuth">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Expiration de session</div>
+                      <div class="meta">Déconnexion automatique après inactivité</div>
+                    </div>
+                    <select id="sessionTimeout">
+                      <option value="30">30 minutes</option>
+                      <option value="60">1 heure</option>
+                      <option value="120">2 heures</option>
+                      <option value="240">4 heures</option>
+                      <option value="0">Jamais</option>
+                    </select>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Limite de tentatives de connexion</div>
+                      <div class="meta">Bloquer après plusieurs échecs de connexion</div>
+                    </div>
+                    <select id="loginAttempts">
+                      <option value="3">3 tentatives</option>
+                      <option value="5">5 tentatives</option>
+                      <option value="10">10 tentatives</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="setting-group">
+                  <h3>Chiffrement des Données</h3>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Chiffrement AES-512</div>
+                      <div class="meta">Toutes les données sont chiffrées avec AES-512</div>
+                    </div>
+                    <div style="color: var(--success);">
+                      <i class="fas fa-check-circle"></i> Activé
+                    </div>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Chiffrement de bout en bout</div>
+                      <div class="meta">Les données sont chiffrées pendant le transfert</div>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="endToEndEncryption" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Stockage sécurisé</div>
+                      <div class="meta">Les données sont stockées de manière sécurisée</div>
+                    </div>
+                    <div style="color: var(--success);">
+                      <i class="fas fa-check-circle"></i> Activé
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="setting-group">
+                  <h3>Journalisation et Audit</h3>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Journal d'activité complet</div>
+                      <div class="meta">Enregistrer toutes les actions des utilisateurs</div>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="activityLogging" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Alertes de sécurité</div>
+                      <div class="meta">Notifications pour les activités suspectes</div>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="securityAlerts" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Rapports d'audit automatiques</div>
+                      <div class="meta">Générer des rapports d'audit périodiques</div>
+                    </div>
+                    <select id="auditReports">
+                      <option value="7">Hebdomadaire</option>
+                      <option value="30">Mensuel</option>
+                      <option value="0">Désactivé</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="setting-group">
+                  <h3>Contrôles d'Accès</h3>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Accès par IP</div>
+                      <div class="meta">Restreindre l'accès à certaines adresses IP</div>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="ipRestrictions">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Heures d'accès</div>
+                      <div class="meta">Limiter l'accès à certaines plages horaires</div>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="timeRestrictions">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                  
+                  <div class="setting-item">
+                    <div>
+                      <div style="font-weight: 600;">Sessions simultanées</div>
+                      <div class="meta">Limiter le nombre de sessions simultanées</div>
+                    </div>
+                    <select id="simultaneousSessions">
+                      <option value="1">1 session</option>
+                      <option value="2">2 sessions</option>
+                      <option value="5">5 sessions</option>
+                      <option value="0">Illimité</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button id="saveSecuritySettings"><i class="fas fa-save"></i> Sauvegarder les paramètres</button>
+                <button class="btn-danger" id="resetSecuritySettings"><i class="fas fa-undo"></i> Réinitialiser</button>
+              </div>
+            </div>
+          </div>
+
+          <footer>
+            <div>© Eagle Intercept0r — Usage légal uniquement. Respectez la vie privée et la loi.</div>
+            <div class="meta" style="margin-top: 8px;">Système certifié Samsung Knox Cloud</div>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== SYSTÈME DE GESTION DES UTILISATEURS AMÉLIORÉ =====
+    
+    const UserManager = {
+      getUsers: function() {
+        const users = localStorage.getItem('eagle_users');
+        return users ? JSON.parse(users) : [];
+      },
+      
+      saveUsers: function(users) {
+        localStorage.setItem('eagle_users', JSON.stringify(users));
+      },
+      
+      // Initialiser les utilisateurs par défaut avec username explicite
+      initDefaultUsers: function() {
+        const defaultUsers = [
+          {
+            id: 1,
+            name: "Administrateur Système",
+            email: "admin@eagle-interceptor.io",
+            username: "EIleonkonan",
+            password: "TCk8cQn4",
+            role: "admin",
+            avatar: "AD",
+            permissions: ["search", "acquisition", "eaglereader", "mlocator", "reports", "users", "security"],
+            createdAt: new Date().toISOString(),
+            active: true
+          },
+          {
+            id: 2,
+            name: "Pierre Technicien",
+            email: "tech@eagle-interceptor.io",
+            username: "pierre.tech",
+            password: "Tech123!",
+            role: "technician",
+            avatar: "PT",
+            permissions: ["search", "acquisition", "eaglereader", "mlocator", "reports"],
+            createdAt: new Date().toISOString(),
+            active: true
+          },
+          {
+            id: 3,
+            name: "Client Entreprise",
+            email: "client@entreprise.com",
+            username: "entreprise.client",
+            password: "Client123!",
+            role: "client",
+            avatar: "CE",
+            permissions: ["search", "acquisition"],
+            createdAt: new Date().toISOString(),
+            active: true
+          },
+          {
+            id: 4,
+            name: "Bernard DERRIEN",
+            email: "bernardderrienlbv@gmail.com",
+            username: "bernardderrienlbv",
+            password: "Ben29odet95?",
+            role: "admin",
+            avatar: "BD",
+            permissions: ["search", "acquisition", "eaglereader", "mlocator", "reports", "security"],
+            createdAt: new Date().toISOString(),
+            active: true
+          }
+        ];
+        
+        if (this.getUsers().length === 0) {
+          this.saveUsers(defaultUsers);
+        }
+      },
+      
+      addUser: function(userData) {
+        const users = this.getUsers();
+        const newUser = {
+          id: Date.now(),
+          name: userData.name,
+          email: userData.email,
+          username: userData.username,
+          password: userData.password,
+          role: userData.role,
+          avatar: userData.name.split(' ').map(n => n[0]).join('').toUpperCase(),
+          permissions: userData.permissions || [],
+          createdAt: new Date().toISOString(),
+          active: true
+        };
+        
+        users.push(newUser);
+        this.saveUsers(users);
+        return newUser;
+      },
+      
+      updateUser: function(userId, userData) {
+        const users = this.getUsers();
+        const userIndex = users.findIndex(u => u.id === userId);
+        
+        if (userIndex !== -1) {
+          users[userIndex] = { ...users[userIndex], ...userData };
+          this.saveUsers(users);
+          return users[userIndex];
+        }
+        
+        return null;
+      },
+      
+      deleteUser: function(userId) {
+        const users = this.getUsers();
+        const filteredUsers = users.filter(u => u.id !== userId);
+        this.saveUsers(filteredUsers);
+        return filteredUsers.length !== users.length;
+      },
+      
+      // Rechercher par username OU email
+      getUserByIdentifier: function(identifier) {
+        const users = this.getUsers();
+        return users.find(u => u.username === identifier || u.email === identifier);
+      },
+      
+      isDuplicate: function(email, username) {
+        const users = this.getUsers();
+        return users.some(u => u.email === email || u.username === username);
+      }
+    };
+
+    // ===== GESTION DE SESSION PERSISTANTE =====
+    
+    const SessionManager = {
+      getCurrentUser: function() {
+        const userData = localStorage.getItem('eagle_current_user');
+        return userData ? JSON.parse(userData) : null;
+      },
+      
+      setCurrentUser: function(user) {
+        localStorage.setItem('eagle_current_user', JSON.stringify(user));
+      },
+      
+      clearCurrentUser: function() {
+        localStorage.removeItem('eagle_current_user');
+      },
+      
+      // Vérifier si un utilisateur est déjà connecté
+      checkExistingSession: function() {
+        const currentUser = this.getCurrentUser();
+        if (currentUser) {
+          return currentUser;
+        }
+        return null;
+      }
+    };
+
+    // ===== BASE DE DONNÉES DE CIBLES AMÉLIORÉE =====
+    
+    const TargetDatabase = {
+      getTargets: function() {
+        const targets = localStorage.getItem('eagle_targets');
+        if (targets) return JSON.parse(targets);
+        
+        // Initialiser avec des données par défaut (uniquement pour l'admin)
+        const defaultTargets = [
+          {
+            id: "KF001",
+            userId: 1, // Admin uniquement
+            imei: "356789012345678",
+            sn: "SN-A1B2C3",
+            phone: "+2250707692252",
+            mac: "00:1B:44:11:3A:B7",
+            model: "iPhone",
+            owner: "KF",
+            status: "active",
+            lastActivity: new Date(Date.now() - 15 * 60000).toISOString(),
+            availableData: ["SMS", "Appels", "Photos", "Localisations", "Logs", "WhatsApp", "Facebook", "Contacts"],
+            details: {
+              calls: [
+                { type: "incoming", number: "+22507080910", duration: 120, timestamp: new Date(Date.now() - 15 * 60000).toISOString() },
+                { type: "outgoing", number: "+22505060708", duration: 45, timestamp: new Date(Date.now() - 45 * 60000).toISOString() },
+                { type: "missed", number: "+22503040506", duration: 0, timestamp: new Date(Date.now() - 90 * 60000).toISOString() }
+              ],
+              sms: [
+                { type: "received", number: "+22501020304", content: "Rendez-vous confirmé pour demain", timestamp: new Date(Date.now() - 30 * 60000).toISOString() },
+                { type: "sent", number: "+22505060708", content: "OK, à demain 14h", timestamp: new Date(Date.now() - 60 * 60000).toISOString() }
+              ],
+              locations: [
+                { lat: 48.8566, lng: 2.3522, address: "Paris, France", timestamp: new Date(Date.now() - 15 * 60000).toISOString() },
+                { lat: 48.8606, lng: 2.3376, address: "Louvre, Paris", timestamp: new Date(Date.now() - 75 * 60000).toISOString() },
+                { lat: 48.8584, lng: 2.2945, address: "Tour Eiffel, Paris", timestamp: new Date(Date.now() - 135 * 60000).toISOString() }
+              ],
+              media: [
+                { type: "photo", name: "photo_001.jpg", size: "2.4 MB", timestamp: new Date(Date.now() - 120 * 60000).toISOString() },
+                { type: "video", name: "video_001.mp4", size: "15.7 MB", timestamp: new Date(Date.now() - 180 * 60000).toISOString() }
+              ],
+              messaging: [
+                { app: "WhatsApp", contact: "Jean Dupont", content: "As-tu reçu le document?", timestamp: new Date(Date.now() - 25 * 60000).toISOString() },
+                { app: "Facebook", contact: "Marie Martin", content: "Merci pour l'info!", timestamp: new Date(Date.now() - 85 * 60000).toISOString() }
+              ]
+            }
+          },
+          {
+            id: "BL002",
+            userId: 1, // Admin uniquement
+            imei: "490154203237518",
+            sn: "SN-Z9Y8X7",
+            phone: "+2250777520986",
+            mac: "00:1B:44:11:3B:C8",
+            model: "iPhone 13",
+            owner: "BELLO",
+            status: "active",
+            lastActivity: new Date(Date.now() - 45 * 60000).toISOString(),
+            availableData: ["Photos", "Contacts", "Logs", "Localisations", "iMessage", "Safari"],
+            details: {
+              calls: [
+                { type: "incoming", number: "+33798765432", duration: 180, timestamp: new Date(Date.now() - 45 * 60000).toISOString() },
+                { type: "outgoing", number: "+33712345678", duration: 65, timestamp: new Date(Date.now() - 120 * 60000).toISOString() }
+              ],
+              sms: [
+                { type: "received", number: "+33711223344", content: "Réunion reportée à 16h", timestamp: new Date(Date.now() - 90 * 60000).toISOString() }
+              ],
+              locations: [
+                { lat: 48.8765, lng: 2.2634, address: "La Défense, Paris", timestamp: new Date(Date.now() - 45 * 60000).toISOString() },
+                { lat: 48.8738, lng: 2.2950, address: "Arc de Triomphe, Paris", timestamp: new Date(Date.now() - 105 * 60000).toISOString() }
+              ],
+              media: [
+                { type: "photo", name: "IMG_1234.jpg", size: "3.1 MB", timestamp: new Date(Date.now() - 150 * 60000).toISOString() }
+              ],
+              messaging: [
+                { app: "iMessage", contact: "Thomas B", content: "C'est noté, merci!", timestamp: new Date(Date.now() - 65 * 60000).toISOString() }
+              ]
+            }
+          },
+          {
+            id: "SL003",
+            userId: 1, // Admin uniquement
+            imei: "861234056789012",
+            sn: "SN-M4N5O6",
+            phone: "+2250505992287",
+            mac: "00:1B:44:11:3C:D9",
+            model: "REDMI NOTE 12 PRO",
+            owner: "SOULAN",
+            status: "inactive",
+            lastActivity: new Date(Date.now() - 120 * 60000).toISOString(),
+            availableData: ["SMS", "Appels", "Localisations", "Gmail", "Chrome"],
+            details: {
+              calls: [
+                { type: "outgoing", number: "+441987654321", duration: 240, timestamp: new Date(Date.now() - 120 * 60000).toISOString() }
+              ],
+              sms: [
+                { type: "sent", number: "+44123456789", content: "Arriverai dans 10 min", timestamp: new Date(Date.now() - 150 * 60000).toISOString() }
+              ],
+              locations: [
+                { lat: 51.5074, lng: -0.1278, address: "Londres, Royaume-Uni", timestamp: new Date(Date.now() - 120 * 60000).toISOString() },
+                { lat: 51.5007, lng: -0.1246, address: "Big Ben, Londres", timestamp: new Date(Date.now() - 180 * 60000).toISOString() }
+              ],
+              media: [],
+              messaging: [
+                { app: "Gmail", contact: "contact@company.com", content: "Sujet: Proposition commerciale", timestamp: new Date(Date.now() - 200 * 60000).toISOString() }
+              ]
+            }
+          },
+          {
+            id: "FK004",
+            userId: 1, // Admin uniquement
+            imei: "357987065432109",
+            sn: "SN-P7Q8R9",
+            phone: "+2250708278708",
+            mac: "00:1B:44:11:3D:E0",
+            model: "SAMSUNG S24 ULTRA",
+            owner: "Frank KOSSONOU",
+            status: "active",
+            lastActivity: new Date(Date.now() - 10 * 60000).toISOString(),
+            availableData: ["SMS", "Appels", "Localisations", "WeChat", "Photos"],
+            details: {
+              calls: [
+                { type: "incoming", number: "+4915734567890", duration: 95, timestamp: new Date(Date.now() - 10 * 60000).toISOString() }
+              ],
+              sms: [
+                { type: "received", number: "+4915123456789", content: "Code de vérification: 458792", timestamp: new Date(Date.now() - 30 * 60000).toISOString() }
+              ],
+              locations: [
+                { lat: 52.5200, lng: 13.4050, address: "Berlin, Allemagne", timestamp: new Date(Date.now() - 10 * 60000).toISOString() },
+                { lat: 52.5163, lng: 13.3777, address: "Brandenburger Tor, Berlin", timestamp: new Date(Date.now() - 70 * 60000).toISOString() }
+              ],
+              media: [
+                { type: "photo", name: "DSC_0456.jpg", size: "4.2 MB", timestamp: new Date(Date.now() - 100 * 60000).toISOString() }
+              ],
+              messaging: [
+                { app: "WeChat", contact: "Li Wei", content: "明天见!", timestamp: new Date(Date.now() - 40 * 60000).toISOString() }
+              ]
+            }
+          },
+          {
+            id: "FK005",
+            userId: 1, // Admin uniquement
+            imei: "357987065432110",
+            sn: "SN-P7Q8R0",
+            phone: "+2250505008080",
+            mac: "00:1B:44:11:3D:E1",
+            model: "iPhone 16",
+            owner: "Frank KOSSONOU",
+            status: "active",
+            lastActivity: new Date(Date.now() - 5 * 60000).toISOString(),
+            availableData: ["SMS", "Appels", "Localisations", "iMessage", "Photos"],
+            details: {
+              calls: [
+                { type: "outgoing", number: "+22507080910", duration: 65, timestamp: new Date(Date.now() - 5 * 60000).toISOString() }
+              ],
+              sms: [
+                { type: "sent", number: "+22505060708", content: "J'arrive dans 15 minutes", timestamp: new Date(Date.now() - 25 * 60000).toISOString() }
+              ],
+              locations: [
+                { lat: 52.5200, lng: 13.4050, address: "Berlin, Allemagne", timestamp: new Date(Date.now() - 5 * 60000).toISOString() },
+                { lat: 52.5163, lng: 13.3777, address: "Brandenburger Tor, Berlin", timestamp: new Date(Date.now() - 65 * 60000).toISOString() }
+              ],
+              media: [
+                { type: "photo", name: "IMG_5678.jpg", size: "3.8 MB", timestamp: new Date(Date.now() - 95 * 60000).toISOString() }
+              ],
+              messaging: [
+                { app: "iMessage", contact: "Sophie M", content: "On se voit ce soir?", timestamp: new Date(Date.now() - 35 * 60000).toISOString() }
+              ]
+            }
+          }
+        ];
+        
+        this.saveTargets(defaultTargets);
+        return defaultTargets;
+      },
+      
+      saveTargets: function(targets) {
+        localStorage.setItem('eagle_targets', JSON.stringify(targets));
+      },
+      
+      // Récupérer les cibles d'un utilisateur spécifique
+      getUserTargets: function(userId, userRole) {
+        const targets = this.getTargets();
+        // L'admin voit toutes les cibles, les autres utilisateurs ne voient que leurs cibles
+        if (userRole === 'admin') {
+          return targets;
+        } else {
+          return targets.filter(target => target.userId === userId);
+        }
+      },
+      
+      // Ajouter une cible pour un utilisateur
+      addUserTarget: function(userId, targetData) {
+        const targets = this.getTargets();
+        const newTarget = {
+          ...targetData,
+          userId: userId,
+          id: `T${Date.now()}`,
+          createdAt: new Date().toISOString()
+        };
+        
+        targets.push(newTarget);
+        this.saveTargets(targets);
+        return newTarget;
+      },
+      
+      findTarget: function(type, value) {
+        const targets = this.getTargets();
+        return targets.find(target => {
+          if (type === 'imei') return target.imei === value;
+          if (type === 'sn') return target.sn === value;
+          if (type === 'phone') return target.phone === value;
+          if (type === 'mac') return target.mac === value;
+          return false;
+        });
+      },
+      
+      getRandomTarget: function() {
+        const targets = this.getTargets();
+        return targets[Math.floor(Math.random() * targets.length)];
+      }
+    };
+
+    // ===== GESTION DES RAPPORTS =====
+    
+    const ReportManager = {
+      getReports: function() {
+        const reports = localStorage.getItem('eagle_reports');
+        return reports ? JSON.parse(reports) : [];
+      },
+      
+      saveReports: function(reports) {
+        localStorage.setItem('eagle_reports', JSON.stringify(reports));
+      },
+      
+      // Générer un rapport pour une cible
+      generateReport: function(targetId, reportType, period, userId) {
+        const targets = TargetDatabase.getTargets();
+        const target = targets.find(t => t.id === targetId);
+        
+        if (!target) return null;
+        
+        // Vérifier que l'utilisateur a accès à cette cible
+        const currentUser = SessionManager.getCurrentUser();
+        if (currentUser.role !== 'admin' && target.userId !== currentUser.id) {
+          alert('Accès refusé à cette cible.');
+          return null;
+        }
+        
+        const reportData = this.buildReportData(target, reportType, period);
+        const report = {
+          id: `R${Date.now()}`,
+          userId: userId,
+          targetId: targetId,
+          targetName: target.owner,
+          type: reportType,
+          period: period,
+          generatedAt: new Date().toISOString(),
+          data: reportData
+        };
+        
+        const reports = this.getReports();
+        reports.push(report);
+        this.saveReports(reports);
+        
+        return report;
+      },
+      
+      buildReportData: function(target, reportType, period) {
+        let reportData = `RAPPORT EAGLE INTERCEPT0R\n`;
+        reportData += `=========================\n\n`;
+        reportData += `Cible: ${target.id}\n`;
+        reportData += `Propriétaire: ${target.owner}\n`;
+        reportData += `Modèle: ${target.model}\n`;
+        reportData += `Statut: ${target.status}\n`;
+        reportData += `Dernière activité: ${new Date(target.lastActivity).toLocaleString()}\n\n`;
+        
+        if (reportType === 'full' || reportType === 'calls') {
+          reportData += `ACTIVITÉ D'APPELS:\n`;
+          reportData += `Total: ${target.details.calls.length} appels\n`;
+          target.details.calls.forEach(call => {
+            reportData += `- ${call.type} depuis/vers ${call.number} (${call.duration}s) - ${new Date(call.timestamp).toLocaleString()}\n`;
+          });
+          reportData += `\n`;
+        }
+        
+        if (reportType === 'full' || reportType === 'sms') {
+          reportData += `ACTIVITÉ SMS/MMS:\n`;
+          reportData += `Total: ${target.details.sms.length} messages\n`;
+          target.details.sms.forEach(sms => {
+            reportData += `- ${sms.type} depuis/vers ${sms.number}: "${sms.content}" - ${new Date(sms.timestamp).toLocaleString()}\n`;
+          });
+          reportData += `\n`;
+        }
+        
+        if (reportType === 'full' || reportType === 'locations') {
+          reportData += `DÉPLACEMENTS:\n`;
+          reportData += `Total: ${target.details.locations.length} localisations\n`;
+          target.details.locations.forEach(location => {
+            reportData += `- ${location.address} (${location.lat}, ${location.lng}) - ${new Date(location.timestamp).toLocaleString()}\n`;
+          });
+          reportData += `\n`;
+        }
+        
+        if (reportType === 'full') {
+          reportData += `MÉDIAS:\n`;
+          reportData += `Total: ${target.details.media.length} fichiers\n`;
+          target.details.media.forEach(media => {
+            reportData += `- ${media.type}: ${media.name} (${media.size}) - ${new Date(media.timestamp).toLocaleString()}\n`;
+          });
+          reportData += `\n`;
+          
+          reportData += `MESSAGERIES:\n`;
+          reportData += `Total: ${target.details.messaging.length} messages\n`;
+          target.details.messaging.forEach(msg => {
+            reportData += `- ${msg.app} avec ${msg.contact}: "${msg.content}" - ${new Date(msg.timestamp).toLocaleString()}\n`;
+          });
+          reportData += `\n`;
+        }
+        
+        reportData += `Généré le: ${new Date().toLocaleString()}\n`;
+        
+        return reportData;
+      },
+      
+      // Récupérer les rapports d'un utilisateur
+      getUserReports: function(userId) {
+        const reports = this.getReports();
+        return reports.filter(report => report.userId === userId);
+      }
+    };
+
+    // ===== GESTION DES PARAMÈTRES DE SÉCURITÉ =====
+    
+    const SecurityManager = {
+      getSettings: function() {
+        const settings = localStorage.getItem('eagle_security_settings');
+        return settings ? JSON.parse(settings) : this.getDefaultSettings();
+      },
+      
+      saveSettings: function(settings) {
+        localStorage.setItem('eagle_security_settings', JSON.stringify(settings));
+      },
+      
+      getDefaultSettings: function() {
+        return {
+          twoFactorAuth: false,
+          sessionTimeout: 60,
+          loginAttempts: 5,
+          endToEndEncryption: true,
+          activityLogging: true,
+          securityAlerts: true,
+          auditReports: 7,
+          ipRestrictions: false,
+          timeRestrictions: false,
+          simultaneousSessions: 1
+        };
+      }
+    };
+
+    // ===== AUTHENTIFICATION AMÉLIORÉE =====
+    
+    (function(){
+      // Initialiser les données par défaut
+      UserManager.initDefaultUsers();
+      TargetDatabase.getTargets();
+      SecurityManager.getSettings();
+      
+      const loginOverlay = document.getElementById('loginOverlay');
+      const mainContent = document.getElementById('mainContent');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginError = document.getElementById('loginError');
+      const adminSection = document.getElementById('adminSection');
+      const logoutBtn = document.getElementById('logoutBtn');
+      
+      // Vérifier s'il y a une session existante
+      const existingUser = SessionManager.checkExistingSession();
+      if (existingUser) {
+        showMain(existingUser);
+      }
+      
+      function showMain(user){ 
+        SessionManager.setCurrentUser(user);
+        
+        loginOverlay.style.display='none'; 
+        mainContent.style.display='block'; 
+        loginError.style.display='none'; 
+        
+        // Mettre à jour l'interface utilisateur
+        document.getElementById('userDisplayName').textContent = user.name;
+        document.getElementById('userRole').textContent = 
+          user.role === 'admin' ? 'Administrateur' : 
+          user.role === 'technician' ? 'Technicien' : 'Client';
+        document.getElementById('userAvatar').textContent = user.avatar;
+        
+        // Afficher/masquer la section admin selon le rôle
+        if (user.role === 'admin') {
+          adminSection.style.display = 'block';
+          document.getElementById('adminDashboard').style.display = 'block';
+          document.getElementById('clientDashboard').style.display = 'none';
+        } else {
+          adminSection.style.display = 'none';
+          document.getElementById('adminDashboard').style.display = 'none';
+          document.getElementById('clientDashboard').style.display = 'block';
+          
+          // Rediriger vers le dashboard client si l'utilisateur était sur un onglet admin
+          const currentTab = document.querySelector('.nav-links a.active');
+          if (currentTab && currentTab.getAttribute('data-tab') === 'users') {
+            document.querySelector('[data-tab="dashboard"]').click();
+          }
+        }
+        
+        // Charger les données de l'utilisateur
+        loadUserTargets();
+        loadUserReports();
+        loadSecuritySettings();
+        updateDashboardStats();
+      }
+      
+      function showError(){ 
+        loginError.style.display='block'; 
+      }
+      
+      function logout() {
+        SessionManager.clearCurrentUser();
+        loginOverlay.style.display = 'flex';
+        mainContent.style.display = 'none';
+        document.getElementById('loginUser').value = '';
+        document.getElementById('loginPass').value = '';
+      }
+      
+      loginBtn.addEventListener('click', () => {
+        const identifier = (document.getElementById('loginUser').value || '').trim();
+        const password = (document.getElementById('loginPass').value || '').trim();
+        
+        const user = UserManager.getUserByIdentifier(identifier);
+        
+        if (user && user.password === password && user.active) {
+          showMain(user);
+        } else {
+          showError();
+        }
+      });
+      
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        logout();
+      });
+      
+      // allow Enter key
+      document.getElementById('loginUser').addEventListener('keydown', (e)=>{ if(e.key==='Enter') loginBtn.click(); });
+      document.getElementById('loginPass').addEventListener('keydown', (e)=>{ if(e.key==='Enter') loginBtn.click(); });
+      
+      // Focus sur le champ utilisateur
+      if (!existingUser) {
+        document.getElementById('loginUser').focus();
+      }
+    })();
+
+    // ===== GESTION DE L'INTERFACE UTILISATEUR =====
+    
+    // Navigation between tabs
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        if (this.id === 'logoutBtn') return;
+        
+        e.preventDefault();
+        
+        // Vérifier les permissions
+        const tabId = this.getAttribute('data-tab');
+        const currentUser = SessionManager.getCurrentUser();
+        
+        // Si l'utilisateur n'est pas admin et essaie d'accéder à la gestion des utilisateurs
+        if (tabId === 'users' && currentUser.role !== 'admin') {
+          alert('Accès refusé. Seuls les administrateurs peuvent accéder à cette section.');
+          return;
+        }
+        
+        // Update active navigation
+        document.querySelectorAll('.nav-links a').forEach(item => {
+          item.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Show corresponding tab
+        document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+        
+        // Update page title
+        document.getElementById('pageTitle').textContent = this.querySelector('span').textContent;
+        
+        // Charger les données spécifiques à l'onglet
+        if (tabId === 'users') {
+          loadUsersList();
+        } else if (tabId === 'eaglereader') {
+          loadUserTargets();
+        } else if (tabId === 'mlocator') {
+          loadMlocatorTargets();
+        } else if (tabId === 'reports') {
+          loadReportTargets();
+          loadUserReports();
+        } else if (tabId === 'security') {
+          loadSecuritySettings();
+        } else if (tabId === 'acquisition') {
+          loadAcquisitionTargets();
+        }
+      });
+    });
+
+    // Fonction pour changer d'onglet depuis le dashboard client
+    window.showTab = function(tabId) {
+      document.querySelectorAll('.nav-links a').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-tab') === tabId) {
+          item.classList.add('active');
+        }
+      });
+      
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.getElementById(tabId).classList.add('active');
+      
+      document.getElementById('pageTitle').textContent = 
+        tabId === 'search' ? 'Recherche Cible' :
+        tabId === 'acquisition' ? 'Acquisition' :
+        tabId === 'eaglereader' ? 'EagleReader' : 'Tableau de Bord';
+        
+      // Charger les données spécifiques à l'onglet
+      if (tabId === 'eaglereader') {
+        loadUserTargets();
+      } else if (tabId === 'mlocator') {
+        loadMlocatorTargets();
+      } else if (tabId === 'reports') {
+        loadReportTargets();
+        loadUserReports();
+      } else if (tabId === 'acquisition') {
+        loadAcquisitionTargets();
+      }
+    };
+
+    // Navigation des sous-onglets de gestion utilisateurs
+    document.querySelectorAll('[data-users-tab]').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-users-tab');
+        
+        // Update active tabs
+        document.querySelectorAll('[data-users-tab]').forEach(item => {
+          item.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Show corresponding content
+        document.querySelectorAll('#users .tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById('users-' + tabId).classList.add('active');
+      });
+    });
+
+    // Navigation des sous-onglets d'acquisition
+    document.querySelectorAll('[data-acquisition-tab]').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-acquisition-tab');
+        
+        // Update active tabs
+        document.querySelectorAll('[data-acquisition-tab]').forEach(item => {
+          item.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Show corresponding content
+        document.querySelectorAll('#acquisition .tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById(tabId + '-acquisition').classList.add('active');
+      });
+    });
+
+    // Navigation des sous-onglets d'EagleReader
+    document.querySelectorAll('[data-reader-tab]').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-reader-tab');
+        
+        // Update active tabs
+        document.querySelectorAll('[data-reader-tab]').forEach(item => {
+          item.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Show corresponding content
+        document.querySelectorAll('#eaglereader .tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById('reader-' + tabId).classList.add('active');
+      });
+    });
+
+    // Navigation des sous-onglets de données dans EagleReader
+    document.querySelectorAll('[data-data-tab]').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-data-tab');
+        
+        // Update active tabs
+        document.querySelectorAll('[data-data-tab]').forEach(item => {
+          item.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        // Show corresponding content
+        document.querySelectorAll('#reader-data .tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById('data-' + tabId).classList.add('active');
+      });
+    });
+
+    // Toggle sidebar on mobile
+    document.getElementById('menuToggle').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('active');
+    });
+
+    // ===== FONCTIONS DE GESTION DES CIBLES =====
+    
+    let selectedTargetId = null;
+    
+    // Mettre à jour les statistiques du dashboard
+    function updateDashboardStats() {
+      const currentUser = SessionManager.getCurrentUser();
+      const targets = TargetDatabase.getUserTargets(currentUser.id, currentUser.role);
+      
+      if (currentUser.role === 'admin') {
+        document.getElementById('adminTargetCount').textContent = targets.length;
+        document.getElementById('adminDataCount').textContent = targets.reduce((total, target) => {
+          return total + (target.details ? Object.keys(target.details).length : 0);
+        }, 0);
+      } else {
+        document.getElementById('clientTargetCount').textContent = targets.length;
+        document.getElementById('clientDataCount').textContent = targets.reduce((total, target) => {
+          return total + (target.details ? Object.keys(target.details).length : 0);
+        }, 0);
+      }
+    }
+    
+    // Charger les cibles de l'utilisateur pour EagleReader
+    function loadUserTargets() {
+      const currentUser = SessionManager.getCurrentUser();
+      const targets = TargetDatabase.getUserTargets(currentUser.id, currentUser.role);
+      const targetsList = document.getElementById('userTargetsList');
+      const noTargetsMessage = document.getElementById('noTargetsMessage');
+      
+      targetsList.innerHTML = '';
+      
+      if (targets.length === 0) {
+        noTargetsMessage.style.display = 'block';
+        return;
+      }
+      
+      noTargetsMessage.style.display = 'none';
+      
+      targets.forEach(target => {
+        const targetItem = document.createElement('div');
+        targetItem.className = 'target-item';
+        targetItem.dataset.targetId = target.id;
+        
+        targetItem.innerHTML = `
+          <div class="target-name">${target.owner}</div>
+          <div class="target-info">${target.model} • ${target.phone}</div>
+          <div class="target-info">Dernière activité: ${new Date(target.lastActivity).toLocaleString()}</div>
+          <div class="target-info">Données disponibles: ${target.availableData.join(', ')}</div>
+        `;
+        
+        targetItem.addEventListener('click', function() {
+          // Désélectionner l'élément précédent
+          document.querySelectorAll('.target-item').forEach(item => {
+            item.classList.remove('selected');
+          });
+          
+          // Sélectionner l'élément actuel
+          this.classList.add('selected');
+          selectedTargetId = target.id;
+          
+          // Afficher les données de la cible
+          displayTargetData(target);
+          
+          // Passer à l'onglet des données
+          document.querySelector('[data-reader-tab="data"]').click();
+        });
+        
+        targetsList.appendChild(targetItem);
+      });
+    }
+    
+    // Afficher les données d'une cible sélectionnée
+    function displayTargetData(target) {
+      document.getElementById('selectedTargetName').textContent = `Données de ${target.owner}`;
+      
+      // Afficher les appels
+      let callsHtml = '';
+      if (target.details.calls && target.details.calls.length > 0) {
+        target.details.calls.forEach(call => {
+          const typeIcon = call.type === 'incoming' ? 'fa-phone-alt' : 
+                          call.type === 'outgoing' ? 'fa-phone' : 'fa-phone-slash';
+          const typeColor = call.type === 'incoming' ? '#10b981' : 
+                           call.type === 'outgoing' ? '#3b82f6' : '#ef4444';
+          
+          callsHtml += `<div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px;">
+            <i class="fas ${typeIcon}" style="color: ${typeColor}; margin-right: 8px;"></i>
+            <strong>${call.number}</strong> - ${call.duration}s
+            <div class="meta">${new Date(call.timestamp).toLocaleString()}</div>
+          </div>`;
+        });
+      } else {
+        callsHtml = '<div style="text-align: center; color: var(--muted);">Aucun appel enregistré</div>';
+      }
+      document.getElementById('callsData').innerHTML = callsHtml;
+      
+      // Afficher les SMS
+      let smsHtml = '';
+      if (target.details.sms && target.details.sms.length > 0) {
+        target.details.sms.forEach(sms => {
+          const typeIcon = sms.type === 'received' ? 'fa-inbox' : 'fa-paper-plane';
+          const typeColor = sms.type === 'received' ? '#10b981' : '#3b82f6';
+          
+          smsHtml += `<div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px;">
+            <i class="fas ${typeIcon}" style="color: ${typeColor}; margin-right: 8px;"></i>
+            <strong>${sms.number}</strong>: "${sms.content}"
+            <div class="meta">${new Date(sms.timestamp).toLocaleString()}</div>
+          </div>`;
+        });
+      } else {
+        smsHtml = '<div style="text-align: center; color: var(--muted);">Aucun SMS enregistré</div>';
+      }
+      document.getElementById('smsData').innerHTML = smsHtml;
+      
+      // Afficher les localisations
+      let locationsHtml = '';
+      if (target.details.locations && target.details.locations.length > 0) {
+        target.details.locations.forEach(location => {
+          locationsHtml += `<div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px;">
+            <i class="fas fa-map-marker-alt" style="color: #ef4444; margin-right: 8px;"></i>
+            <strong>${location.address}</strong>
+            <div class="meta">${location.lat}, ${location.lng} - ${new Date(location.timestamp).toLocaleString()}</div>
+          </div>`;
+        });
+      } else {
+        locationsHtml = '<div style="text-align: center; color: var(--muted);">Aucune localisation enregistrée</div>';
+      }
+      document.getElementById('locationsData').innerHTML = locationsHtml;
+      
+      // Afficher les médias
+      let mediaHtml = '';
+      if (target.details.media && target.details.media.length > 0) {
+        target.details.media.forEach(media => {
+          const typeIcon = media.type === 'photo' ? 'fa-image' : 'fa-video';
+          
+          mediaHtml += `<div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px;">
+            <i class="fas ${typeIcon}" style="color: #8b5cf6; margin-right: 8px;"></i>
+            <strong>${media.name}</strong> (${media.size})
+            <div class="meta">${new Date(media.timestamp).toLocaleString()}</div>
+          </div>`;
+        });
+      } else {
+        mediaHtml = '<div style="text-align: center; color: var(--muted);">Aucun média enregistré</div>';
+      }
+      document.getElementById('mediaData').innerHTML = mediaHtml;
+      
+      // Afficher les messages d'applications
+      let messagingHtml = '';
+      if (target.details.messaging && target.details.messaging.length > 0) {
+        target.details.messaging.forEach(msg => {
+          messagingHtml += `<div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.02); border-radius: 4px;">
+            <i class="fas fa-comment" style="color: #f59e0b; margin-right: 8px;"></i>
+            <strong>${msg.app}</strong> avec <strong>${msg.contact}</strong>: "${msg.content}"
+            <div class="meta">${new Date(msg.timestamp).toLocaleString()}</div>
+          </div>`;
+        });
+      } else {
+        messagingHtml = '<div style="text-align: center; color: var(--muted);">Aucun message d\'application enregistré</div>';
+      }
+      document.getElementById('messagingData').innerHTML = messagingHtml;
+    }
+    
+    // Charger les cibles pour MLocator
+    function loadMlocatorTargets() {
+      const currentUser = SessionManager.getCurrentUser();
+      const targets = TargetDatabase.getUserTargets(currentUser.id, currentUser.role);
+      const targetsList = document.getElementById('mlocatorTargetsList');
+      const noTargetsMessage = document.getElementById('noMlocatorTargets');
+      
+      targetsList.innerHTML = '';
+      
+      // Filtrer les cibles avec des données de localisation
+      const targetsWithLocations = targets.filter(target => 
+        target.details.locations && target.details.locations.length > 0
+      );
+      
+      if (targetsWithLocations.length === 0) {
+        noTargetsMessage.style.display = 'block';
+        return;
+      }
+      
+      noTargetsMessage.style.display = 'none';
+      
+      targetsWithLocations.forEach(target => {
+        const targetItem = document.createElement('div');
+        targetItem.className = 'target-item';
+        targetItem.dataset.targetId = target.id;
+        
+        targetItem.innerHTML = `
+          <div class="target-name">${target.owner}</div>
+          <div class="target-info">${target.model} • ${target.phone}</div>
+          <div class="target-info">${target.details.locations.length} localisations</div>
+        `;
+        
+        targetItem.addEventListener('click', function() {
+          // Désélectionner l'élément précédent
+          document.querySelectorAll('.target-item').forEach(item => {
+            item.classList.remove('selected');
+          });
+          
+          // Sélectionner l'élément actuel
+          this.classList.add('selected');
+          
+          // Afficher les données de localisation
+          displayTargetLocations(target);
+        });
+        
+        targetsList.appendChild(targetItem);
+      });
+      
+      // Afficher les données de la première cible par défaut
+      if (targetsWithLocations.length > 0) {
+        targetsList.firstChild.click();
+      }
+    }
+    
+    // Afficher les localisations d'une cible dans MLocator
+    function displayTargetLocations(target) {
+      document.getElementById('mapTargetName').textContent = `Localisations de ${target.owner}`;
+      document.getElementById('mapTargetInfo').textContent = 
+        `${target.details.locations.length} points de localisation enregistrés`;
+      
+      const gpsTimeline = document.getElementById('gpsTimeline');
+      gpsTimeline.innerHTML = '';
+      
+      // Trier les localisations par date (plus récentes en premier)
+      const sortedLocations = [...target.details.locations].sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      
+      sortedLocations.forEach(location => {
+        const gpsPoint = document.createElement('div');
+        gpsPoint.className = 'gps-point';
+        
+        gpsPoint.innerHTML = `
+          <div>
+            <div>${location.address}</div>
+            <div class="meta">${location.lat}, ${location.lng}</div>
+          </div>
+          <div class="gps-time">${new Date(location.timestamp).toLocaleTimeString()}</div>
+        `;
+        
+        gpsTimeline.appendChild(gpsPoint);
+      });
+    }
+    
+    // Charger les cibles pour les rapports
+    function loadReportTargets() {
+      const currentUser = SessionManager.getCurrentUser();
+      const targets = TargetDatabase.getUserTargets(currentUser.id, currentUser.role);
+      const reportTargetSelect = document.getElementById('reportTarget');
+      
+      reportTargetSelect.innerHTML = '<option value="">-- Sélectionner une cible --</option>';
+      
+      targets.forEach(target => {
+        const option = document.createElement('option');
+        option.value = target.id;
+        option.textContent = `${target.owner} (${target.model})`;
+        reportTargetSelect.appendChild(option);
+      });
+    }
+    
+    // Charger les cibles pour l'acquisition
+    function loadAcquisitionTargets() {
+      const currentUser = SessionManager.getCurrentUser();
+      const targets = TargetDatabase.getUserTargets(currentUser.id, currentUser.role);
+      const targetSelect = document.getElementById('targetSelect');
+      
+      targetSelect.innerHTML = '<option value="">-- Sélectionner une cible --</option>';
+      
+      targets.forEach(target => {
+        const option = document.createElement('option');
+        option.value = target.id;
+        option.textContent = `${target.owner} (${target.model})`;
+        targetSelect.appendChild(option);
+      });
+    }
+    
+    // Charger les rapports de l'utilisateur
+    function loadUserReports() {
+      const currentUser = SessionManager.getCurrentUser();
+      const reports = ReportManager.getUserReports(currentUser.id);
+      const savedReportsList = document.getElementById('savedReportsList');
+      
+      savedReportsList.innerHTML = '';
+      
+      if (reports.length === 0) {
+        savedReportsList.innerHTML = '<div style="text-align: center; color: var(--muted); padding: 20px;">Aucun rapport sauvegardé</div>';
+        return;
+      }
+      
+      // Trier les rapports par date (plus récents en premier)
+      const sortedReports = [...reports].sort((a, b) => 
+        new Date(b.generatedAt) - new Date(a.generatedAt)
+      );
+      
+      sortedReports.forEach(report => {
+        const reportItem = document.createElement('div');
+        reportItem.className = 'file';
+        
+        reportItem.innerHTML = `
+          <div>
+            <div style="font-weight:600">${report.targetName} - ${report.type}</div>
+            <div class="meta">Généré le ${new Date(report.generatedAt).toLocaleString()}</div>
+          </div>
+          <div>
+            <button onclick="viewReport('${report.id}')"><i class="fas fa-eye"></i></button>
+            <button onclick="downloadReport('${report.id}')"><i class="fas fa-download"></i></button>
+            <button class="btn-danger" onclick="deleteReport('${report.id}')"><i class="fas fa-trash"></i></button>
+          </div>
+        `;
+        
+        savedReportsList.appendChild(reportItem);
+      });
+    }
+    
+    // Charger les paramètres de sécurité
+    function loadSecuritySettings() {
+      const settings = SecurityManager.getSettings();
+      
+      document.getElementById('twoFactorAuth').checked = settings.twoFactorAuth;
+      document.getElementById('sessionTimeout').value = settings.sessionTimeout;
+      document.getElementById('loginAttempts').value = settings.loginAttempts;
+      document.getElementById('endToEndEncryption').checked = settings.endToEndEncryption;
+      document.getElementById('activityLogging').checked = settings.activityLogging;
+      document.getElementById('securityAlerts').checked = settings.securityAlerts;
+      document.getElementById('auditReports').value = settings.auditReports;
+      document.getElementById('ipRestrictions').checked = settings.ipRestrictions;
+      document.getElementById('timeRestrictions').checked = settings.timeRestrictions;
+      document.getElementById('simultaneousSessions').value = settings.simultaneousSessions;
+    }
+
+    // ===== FONCTIONS DE GESTION DES UTILISATEURS =====
+    
+    // Charger la liste des utilisateurs
+    function loadUsersList() {
+      const users = UserManager.getUsers();
+      const tbody = document.getElementById('usersTableBody');
+      
+      tbody.innerHTML = '';
+      
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        
+        // Déterminer la classe du badge selon le rôle
+        let badgeClass = 'badge-client';
+        if (user.role === 'admin') badgeClass = 'badge-admin';
+        if (user.role === 'technician') badgeClass = 'badge-technician';
+        
+        // Déterminer le texte du rôle
+        let roleText = 'Client';
+        if (user.role === 'admin') roleText = 'Administrateur';
+        if (user.role === 'technician') roleText = 'Technicien';
+        
+        tr.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.username}</td>
+          <td><span class="user-badge ${badgeClass}">${roleText}</span></td>
+          <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+          <td>${user.active ? '<span style="color:#10b981">Actif</span>' : '<span style="color:#ef4444">Inactif</span>'}</td>
+          <td>
+            <div class="user-actions">
+              <button class="btn-warning" onclick="editUser(${user.id})" ${user.role === 'admin' ? 'disabled' : ''}><i class="fas fa-edit"></i></button>
+              <button class="btn-danger" onclick="deleteUser(${user.id})" ${user.role === 'admin' ? 'disabled' : ''}><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+    }
+    
+    // Créer un nouvel utilisateur
+    document.getElementById('createUserBtn').addEventListener('click', function() {
+      const name = document.getElementById('newUserName').value.trim();
+      const email = document.getElementById('newUserEmail').value.trim();
+      const username = document.getElementById('newUserUsername').value.trim();
+      const role = document.getElementById('newUserRole').value;
+      const password = document.getElementById('newUserPassword').value;
+      const confirmPassword = document.getElementById('newUserConfirmPassword').value;
+      
+      // Validation
+      if (!name || !email || !username || !password) {
+        alert('Veuillez remplir tous les champs obligatoires.');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        alert('Les mots de passe ne correspondent pas.');
+        return;
+      }
+      
+      if (password.length < 6) {
+        alert('Le mot de passe doit contenir au moins 6 caractères.');
+        return;
+      }
+      
+      // Vérifier si l'email ou le nom d'utilisateur existe déjà
+      if (UserManager.isDuplicate(email, username)) {
+        alert('Un utilisateur avec cet email ou nom d\'utilisateur existe déjà.');
+        return;
+      }
+      
+      // Récupérer les permissions sélectionnées
+      const permissionCheckboxes = document.querySelectorAll('input[name="permissions"]:checked');
+      const permissions = Array.from(permissionCheckboxes).map(cb => cb.value);
+      
+      // Ajouter l'utilisateur
+      const newUser = UserManager.addUser({
+        name,
+        email,
+        username,
+        password,
+        role,
+        permissions
+      });
+      
+      if (newUser) {
+        alert('Utilisateur créé avec succès!\n\nIdentifiants de connexion:\nNom d\'utilisateur: ' + username + '\nMot de passe: ' + password);
+        // Réinitialiser le formulaire
+        document.getElementById('newUserName').value = '';
+        document.getElementById('newUserEmail').value = '';
+        document.getElementById('newUserUsername').value = '';
+        document.getElementById('newUserPassword').value = '';
+        document.getElementById('newUserConfirmPassword').value = '';
+        
+        // Recharger la liste des utilisateurs
+        loadUsersList();
+        
+        // Revenir à l'onglet liste
+        document.querySelector('[data-users-tab="list"]').click();
+      } else {
+        alert('Erreur lors de la création de l\'utilisateur.');
+      }
+    });
+    
+    // Actualiser la liste des utilisateurs
+    document.getElementById('refreshUsers').addEventListener('click', function() {
+      loadUsersList();
+    });
+    
+    // Éditer un utilisateur
+    window.editUser = function(userId) {
+      const users = UserManager.getUsers();
+      const user = users.find(u => u.id === userId);
+      
+      if (user) {
+        const newName = prompt('Nouveau nom:', user.name);
+        if (newName) {
+          UserManager.updateUser(userId, { name: newName });
+          loadUsersList();
+          alert('Utilisateur mis à jour avec succès!');
+        }
+      }
+    };
+    
+    // Supprimer un utilisateur
+    window.deleteUser = function(userId) {
+      if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')) {
+        if (UserManager.deleteUser(userId)) {
+          loadUsersList();
+          alert('Utilisateur supprimé avec succès!');
+        } else {
+          alert('Erreur lors de la suppression de l\'utilisateur.');
+        }
+      }
+    };
+
+    // ===== SYSTÈME DE RECHERCHE AMÉLIORÉ =====
+    
+    let searchTimer = null;
+    let searchProgressInterval = null;
+    
+    document.getElementById('searchBtn').addEventListener('click', function() {
+      const searchType = document.getElementById('searchType').value;
+      const searchValue = document.getElementById('searchInput').value.trim();
+      
+      if (!searchValue) {
+        alert('Veuillez saisir une valeur à rechercher.');
+        return;
+      }
+      
+      // Désactiver le bouton pendant la recherche
+      document.getElementById('searchBtn').disabled = true;
+      
+      // Afficher la barre de progression
+      const progressWrap = document.getElementById('searchProgressWrap');
+      const progressBar = document.getElementById('searchProgressBar');
+      const countdown = document.getElementById('searchCountdown');
+      const status = document.getElementById('searchStatus');
+      
+      progressWrap.style.display = '';
+      progressBar.style.width = '0%';
+      
+      // Générer une durée aléatoire entre 5 et 60 minutes
+      const searchDuration = Math.floor(Math.random() * (60 - 5 + 1)) + 5; // 5-60 minutes
+      const searchMs = searchDuration * 60 * 1000; // Convertir en millisecondes
+      
+      let startTime = Date.now();
+      let endTime = startTime + searchMs;
+      
+      status.textContent = `Recherche en cours... Durée estimée: ${searchDuration} minutes`;
+      
+      // Mettre à jour la progression chaque seconde
+      searchProgressInterval = setInterval(() => {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const progress = Math.min(100, (elapsed / searchMs) * 100);
+        
+        progressBar.style.width = progress + '%';
+        
+        // Calculer le temps restant
+        const remaining = Math.max(0, endTime - now);
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        
+        countdown.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Mettre à jour le statut
+        if (progress < 25) {
+          status.textContent = 'Initialisation des systèmes de recherche...';
+        } else if (progress < 50) {
+          status.textContent = 'Interrogation des bases de données...';
+        } else if (progress < 75) {
+          status.textContent = 'Analyse des métadonnées...';
+        } else {
+          status.textContent = 'Finalisation des résultats...';
+        }
+        
+        if (now >= endTime) {
+          clearInterval(searchProgressInterval);
+        }
+      }, 1000);
+      
+      // Lancer la recherche avec un délai
+      searchTimer = setTimeout(() => {
+        clearInterval(searchProgressInterval);
+        progressWrap.style.display = 'none';
+        document.getElementById('searchBtn').disabled = false;
+        
+        // Rechercher la cible
+        let target = TargetDatabase.findTarget(searchType, searchValue);
+        
+        // Si non trouvé, prendre une cible aléatoire
+        if (!target) {
+          target = TargetDatabase.getRandomTarget();
+        }
+        
+        // Afficher les résultats
+        displaySearchResults(target, searchType, searchValue);
+        
+      }, searchMs);
+    });
+    
+    // Afficher les résultats de recherche
+    function displaySearchResults(target, searchType, searchValue) {
+      const resultsContainer = document.getElementById('searchResults');
+      resultsContainer.style.display = 'block';
+      
+      // Mettre à jour les informations générales
+      document.getElementById('result-id').textContent = target.id;
+      document.getElementById('result-type').textContent = 
+        searchType === 'imei' ? 'IMEI' :
+        searchType === 'sn' ? 'Numéro de série' :
+        searchType === 'phone' ? 'Numéro de téléphone' : 'Adresse MAC';
+      document.getElementById('result-status').textContent = 
+        target.status === 'active' ? 'Actif' : 'Inactif';
+      document.getElementById('result-status').style.color = 
+        target.status === 'active' ? '#10b981' : '#ef4444';
+      document.getElementById('result-last-activity').textContent = 
+        new Date(target.lastActivity).toLocaleString();
+      
+      // Mettre à jour les données disponibles
+      const dataContainer = document.getElementById('result-data');
+      dataContainer.innerHTML = '';
+      
+      target.availableData.forEach(dataType => {
+        const dataItem = document.createElement('div');
+        dataItem.className = 'detail-item';
+        dataItem.innerHTML = `
+          <div class="meta">${dataType}</div>
+          <div style="color:#10b981">Disponible</div>
+        `;
+        dataContainer.appendChild(dataItem);
+      });
+      
+      // Activer les boutons d'action
+      document.getElementById('acquireDataBtn').onclick = function() {
+        startDataAcquisition(target.id);
+      };
+      
+      document.getElementById('trackLocationBtn').onclick = function() {
+        alert(`Suivi de localisation activé pour ${target.id}`);
+      };
+      
+      document.getElementById('generateReportBtn').onclick = function() {
+        generateReport(target);
+      };
+      
+      // Faire défiler jusqu'aux résultats
+      resultsContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // ===== SYSTÈME D'ACQUISITION AMÉLIORÉ =====
+    
+    let acquisitionTimer = null;
+    let acquisitionProgressInterval = null;
+    
+    document.getElementById('startAcquisitionBtn').addEventListener('click', function() {
+      const targetId = document.getElementById('targetSelect').value;
+      const dataType = document.getElementById('dataType').value;
+      
+      if (!targetId) {
+        alert('Veuillez sélectionner une cible.');
+        return;
+      }
+      
+      // Désactiver les boutons pendant l'acquisition
+      document.getElementById('startAcquisitionBtn').disabled = true;
+      document.getElementById('stopAcquisitionBtn').disabled = false;
+      
+      // Afficher la barre de progression
+      const progressWrap = document.getElementById('acquisitionProgressWrap');
+      const progressBar = document.getElementById('acquisitionProgressBar');
+      const countdown = document.getElementById('acquisitionCountdown');
+      const status = document.getElementById('acquisitionStatus');
+      
+      progressWrap.style.display = '';
+      progressBar.style.width = '0%';
+      
+      // Générer une durée aléatoire entre 5 et 30 minutes pour l'acquisition
+      const acquisitionDuration = Math.floor(Math.random() * (30 - 5 + 1)) + 5; // 5-30 minutes
+      const acquisitionMs = acquisitionDuration * 60 * 1000; // Convertir en millisecondes
+      
+      let startTime = Date.now();
+      let endTime = startTime + acquisitionMs;
+      
+      status.textContent = `Acquisition en cours... Durée estimée: ${acquisitionDuration} minutes`;
+      
+      // Mettre à jour la progression chaque seconde
+      acquisitionProgressInterval = setInterval(() => {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const progress = Math.min(100, (elapsed / acquisitionMs) * 100);
+        
+        progressBar.style.width = progress + '%';
+        
+        // Calculer le temps restant
+        const remaining = Math.max(0, endTime - now);
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        
+        countdown.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Mettre à jour le statut
+        if (progress < 25) {
+          status.textContent = 'Connexion à la cible...';
+        } else if (progress < 50) {
+          status.textContent = 'Collecte des données...';
+        } else if (progress < 75) {
+          status.textContent = 'Transfert vers le cloud...';
+        } else {
+          status.textContent = 'Finalisation...';
+        }
+        
+        if (now >= endTime) {
+          clearInterval(acquisitionProgressInterval);
+        }
+      }, 1000);
+      
+      // Lancer l'acquisition avec un délai
+      acquisitionTimer = setTimeout(() => {
+        clearInterval(acquisitionProgressInterval);
+        progressWrap.style.display = 'none';
+        document.getElementById('startAcquisitionBtn').disabled = false;
+        document.getElementById('stopAcquisitionBtn').disabled = true;
+        
+        // Afficher le résultat
+        alert(`Acquisition terminée pour la cible ${targetId} (${dataType})`);
+        
+        // Mettre à jour le statut d'acquisition
+        updateAcquisitionStatus(targetId, dataType, 'completed');
+        
+      }, acquisitionMs);
+    });
+    
+    document.getElementById('stopAcquisitionBtn').addEventListener('click', function() {
+      if (acquisitionTimer) {
+        clearTimeout(acquisitionTimer);
+        acquisitionTimer = null;
+      }
+      
+      if (acquisitionProgressInterval) {
+        clearInterval(acquisitionProgressInterval);
+        acquisitionProgressInterval = null;
+      }
+      
+      document.getElementById('acquisitionProgressWrap').style.display = 'none';
+      document.getElementById('startAcquisitionBtn').disabled = false;
+      document.getElementById('stopAcquisitionBtn').disabled = true;
+      
+      alert('Acquisition arrêtée');
+    });
+    
+    // Mettre à jour le statut d'acquisition
+    function updateAcquisitionStatus(targetId, dataType, status) {
+      const statusList = document.getElementById('acquisitionStatusList');
+      
+      if (status === 'completed') {
+        statusList.innerHTML = `
+          <div class="file">
+            <div>
+              <div style="font-weight:600">${targetId} - ${dataType}</div>
+              <div class="meta">Terminé - ${new Date().toLocaleString()}</div>
+            </div>
+            <div style="color:#10b981">
+              <i class="fas fa-check-circle"></i> Réussi
+            </div>
+          </div>
+        `;
+      }
+    }
+    
+    // Sauvegarder la configuration automatique
+    document.getElementById('saveAutoConfig').addEventListener('click', function() {
+      const realtime = document.getElementById('autoRealtime').checked;
+      const batch = document.getElementById('autoBatch').checked;
+      const interval = document.getElementById('syncInterval').value;
+      const retention = document.getElementById('dataRetention').value;
+      
+      alert(`Configuration sauvegardée:\n- Temps réel: ${realtime ? 'Oui' : 'Non'}\n- Traitement par lots: ${batch ? 'Oui' : 'Non'}\n- Intervalle: ${interval} minutes\n- Rétention: ${retention === '0' ? 'Illimitée' : retention + ' jours'}`);
+    });
+    
+    // ===== GESTION DES RAPPORTS =====
+    
+    // Générer un rapport
+    document.getElementById('generateReportBtn').addEventListener('click', function() {
+      const targetId = document.getElementById('reportTarget').value;
+      const reportType = document.getElementById('reportType').value;
+      const period = document.getElementById('reportPeriod').value;
+      
+      if (!targetId) {
+        alert('Veuillez sélectionner une cible.');
+        return;
+      }
+      
+      const currentUser = SessionManager.getCurrentUser();
+      const report = ReportManager.generateReport(targetId, reportType, period, currentUser.id);
+      
+      if (report) {
+        // Afficher l'aperçu du rapport
+        document.getElementById('reportPreview').textContent = report.data;
+        
+        // Recharger la liste des rapports
+        loadUserReports();
+        
+        alert('Rapport généré avec succès!');
+      }
+    });
+    
+    // Visualiser un rapport
+    window.viewReport = function(reportId) {
+      const reports = ReportManager.getReports();
+      const report = reports.find(r => r.id === reportId);
+      
+      if (report) {
+        document.getElementById('reportPreview').textContent = report.data;
+      }
+    };
+    
+    // Télécharger un rapport
+    window.downloadReport = function(reportId) {
+      const reports = ReportManager.getReports();
+      const report = reports.find(r => r.id === reportId);
+      
+      if (report) {
+        const blob = new Blob([report.data], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `rapport_${report.targetName}_${report.id}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    };
+    
+    // Supprimer un rapport
+    window.deleteReport = function(reportId) {
+      if (confirm('Êtes-vous sûr de vouloir supprimer ce rapport ?')) {
+        const reports = ReportManager.getReports();
+        const filteredReports = reports.filter(r => r.id !== reportId);
+        ReportManager.saveReports(filteredReports);
+        loadUserReports();
+        document.getElementById('reportPreview').textContent = 'Sélectionnez une cible et générez un rapport pour voir l\'aperçu';
+        alert('Rapport supprimé avec succès!');
+      }
+    };
+    
+    // Générer un rapport depuis les résultats de recherche
+    function generateReport(target) {
+      const reportData = `
+        RAPPORT EAGLE INTERCEPT0R
+        =========================
+        
+        Cible: ${target.id}
+        Propriétaire: ${target.owner}
+        Modèle: ${target.model}
+        Statut: ${target.status}
+        Dernière activité: ${new Date(target.lastActivity).toLocaleString()}
+        
+        DONNÉES DISPONIBLES:
+        ${target.availableData.map(data => `- ${data}`).join('\n')}
+        
+        STATISTIQUES:
+        - Appels: ${target.details.calls ? target.details.calls.length : 0} enregistrements
+        - SMS: ${target.details.sms ? target.details.sms.length : 0} messages
+        - Localisations: ${target.details.locations ? target.details.locations.length : 0} positions
+        - Médias: ${target.details.media ? target.details.media.length : 0} fichiers
+        
+        Généré le: ${new Date().toLocaleString()}
+      `;
+      
+      // Créer et télécharger le rapport
+      const blob = new Blob([reportData], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `rapport_${target.id}_${Date.now()}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      alert('Rapport généré et téléchargé!');
+    }
+    
+    // Lancer l'acquisition depuis les résultats de recherche
+    function startDataAcquisition(targetId) {
+      // Simuler la sélection de la cible
+      document.getElementById('targetSelect').value = targetId;
+      
+      // Passer à l'onglet acquisition
+      document.querySelector('[data-tab="acquisition"]').click();
+      
+      // Lancer l'acquisition automatiquement
+      setTimeout(() => {
+        document.getElementById('startAcquisitionBtn').click();
+      }, 1000);
+    }
+
+    // ===== GESTION DES PARAMÈTRES DE SÉCURITÉ =====
+    
+    // Sauvegarder les paramètres de sécurité
+    document.getElementById('saveSecuritySettings').addEventListener('click', function() {
+      const settings = {
+        twoFactorAuth: document.getElementById('twoFactorAuth').checked,
+        sessionTimeout: parseInt(document.getElementById('sessionTimeout').value),
+        loginAttempts: parseInt(document.getElementById('loginAttempts').value),
+        endToEndEncryption: document.getElementById('endToEndEncryption').checked,
+        activityLogging: document.getElementById('activityLogging').checked,
+        securityAlerts: document.getElementById('securityAlerts').checked,
+        auditReports: parseInt(document.getElementById('auditReports').value),
+        ipRestrictions: document.getElementById('ipRestrictions').checked,
+        timeRestrictions: document.getElementById('timeRestrictions').checked,
+        simultaneousSessions: parseInt(document.getElementById('simultaneousSessions').value)
+      };
+      
+      SecurityManager.saveSettings(settings);
+      alert('Paramètres de sécurité sauvegardés avec succès!');
+    });
+    
+    // Réinitialiser les paramètres de sécurité
+    document.getElementById('resetSecuritySettings').addEventListener('click', function() {
+      if (confirm('Êtes-vous sûr de vouloir réinitialiser tous les paramètres de sécurité ?')) {
+        const defaultSettings = SecurityManager.getDefaultSettings();
+        SecurityManager.saveSettings(defaultSettings);
+        loadSecuritySettings();
+        alert('Paramètres de sécurité réinitialisés!');
+      }
+    });
+
+    // ===== GESTION DES CIBLES MANUELLE =====
+    
+    // Ajouter une nouvelle cible
+    document.getElementById('addTargetBtn').addEventListener('click', function() {
+      const name = document.getElementById('newTargetName').value.trim();
+      const phone = document.getElementById('newTargetPhone').value.trim();
+      const imei = document.getElementById('newTargetImei').value.trim();
+      const model = document.getElementById('newTargetModel').value.trim();
+      const description = document.getElementById('newTargetDescription').value.trim();
+      
+      if (!name) {
+        alert('Veuillez saisir au moins un nom pour la cible.');
+        return;
+      }
+      
+      const currentUser = SessionManager.getCurrentUser();
+      
+      // Créer la nouvelle cible
+      const newTarget = {
+        owner: name,
+        phone: phone || 'Non spécifié',
+        imei: imei || 'Non spécifié',
+        model: model || 'Non spécifié',
+        description: description || 'Aucune description',
+        status: 'active',
+        lastActivity: new Date().toISOString(),
+        availableData: ['Informations de base'],
+        details: {
+          calls: [],
+          sms: [],
+          locations: [],
+          media: [],
+          messaging: []
+        }
+      };
+      
+      const addedTarget = TargetDatabase.addUserTarget(currentUser.id, newTarget);
+      
+      if (addedTarget) {
+        alert('Cible ajoutée avec succès!');
+        
+        // Réinitialiser le formulaire
+        document.getElementById('newTargetName').value = '';
+        document.getElementById('newTargetPhone').value = '';
+        document.getElementById('newTargetImei').value = '';
+        document.getElementById('newTargetModel').value = '';
+        document.getElementById('newTargetDescription').value = '';
+        
+        // Recharger les listes de cibles
+        loadUserTargets();
+        loadAcquisitionTargets();
+        loadReportTargets();
+        loadMlocatorTargets();
+        updateDashboardStats();
+        
+        // Revenir à l'onglet des cibles
+        document.querySelector('[data-reader-tab="targets"]').click();
+      } else {
+        alert('Erreur lors de l\'ajout de la cible.');
+      }
+    });
+    
+    // Importer des cibles
+    document.getElementById('importTargetsBtn').addEventListener('click', function() {
+      const fileInput = document.getElementById('importTargetsFile');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Veuillez sélectionner un fichier à importer.');
+        return;
+      }
+      
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const content = e.target.result;
+          let targets = [];
+          
+          // Essayer de parser comme JSON
+          try {
+            targets = JSON.parse(content);
+          } catch (jsonError) {
+            // Si ce n'est pas du JSON, essayer comme CSV
+            const lines = content.split('\n');
+            const headers = lines[0].split(',');
+            
+            for (let i = 1; i < lines.length; i++) {
+              if (lines[i].trim()) {
+                const values = lines[i].split(',');
+                const target = {};
+                
+                headers.forEach((header, index) => {
+                  target[header.trim()] = values[index] ? values[index].trim() : '';
+                });
+                
+                targets.push(target);
+              }
+            }
+          }
+          
+          if (targets.length === 0) {
+            alert('Aucune cible trouvée dans le fichier.');
+            return;
+          }
+          
+          const currentUser = SessionManager.getCurrentUser();
+          let importedCount = 0;
+          
+          targets.forEach(targetData => {
+            const newTarget = {
+              owner: targetData.name || targetData.owner || 'Cible importée',
+              phone: targetData.phone || targetData.number || 'Non spécifié',
+              imei: targetData.imei || 'Non spécifié',
+              model: targetData.model || targetData.device || 'Non spécifié',
+              description: targetData.description || 'Importé le ' + new Date().toLocaleDateString(),
+              status: 'active',
+              lastActivity: new Date().toISOString(),
+              availableData: ['Informations de base'],
+              details: {
+                calls: [],
+                sms: [],
+                locations: [],
+                media: [],
+                messaging: []
+              }
+            };
+            
+            TargetDatabase.addUserTarget(currentUser.id, newTarget);
+            importedCount++;
+          });
+          
+          alert(`${importedCount} cible(s) importée(s) avec succès!`);
+          
+          // Recharger les listes de cibles
+          loadUserTargets();
+          loadAcquisitionTargets();
+          loadReportTargets();
+          loadMlocatorTargets();
+          updateDashboardStats();
+          
+          // Réinitialiser le champ de fichier
+          fileInput.value = '';
+          
+        } catch (error) {
+          alert('Erreur lors de l\'importation du fichier: ' + error.message);
+        }
+      };
+      
+      reader.readAsText(file);
+    });
+
+    // Initialiser la liste des utilisateurs au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+      // La liste sera chargée quand on accédera à l'onglet Gestion Utilisateurs
+    });
+  </script>
+</body>
+</html>
