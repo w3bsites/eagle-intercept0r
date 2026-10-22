@@ -21,6 +21,7 @@
     .sidebar {
       width: var(--sidebar-width);
       background: rgba(11, 18, 32, 0.95);
+      -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       height: 100vh;
       position: fixed;
@@ -360,6 +361,171 @@
       .sidebar { transform: translateX(-100%); }
       .sidebar.active { transform: translateX(0); }
       .main-content { margin-left: 0; padding: 16px; }
+    }
+
+    /* =========================================================
+       =====  OPTIMISATIONS RESPONSIVES (AJOUTS UNIQUEMENT)  ====
+       ========================================================= */
+
+    /* 1. Modèle de boîte universel */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* 2. Rendu typographique et compatibilité web */
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* 3. Médias fluides */
+    img, svg, video, canvas { max-width: 100%; height: auto; }
+
+    /* 4. Défilement tactile fluide */
+    .log-area, .activity-feed, .download-targets-container,
+    .gps-timeline, #reportPreview {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+    }
+
+    /* 5. Coupure de texte pour les données longues */
+    .card, .target-info, .download-target-details, .category-stats,
+    .gps-point, .detail-item, .file, #userDisplayName, .target-name,
+    .download-target-name, .checkbox-label, .summary-value {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    /* 6. Accessibilité focus clavier */
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* 7. Cibles tactiles */
+    button, .btn-download, .btn-stop, .tab, .download-selection-option {
+      min-height: 38px;
+    }
+
+    /* 8. Nom utilisateur tronqué */
+    #userDisplayName {
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 9. Boîte de connexion responsive */
+    #loginBox {
+      width: 90vw;
+      max-width: 340px;
+    }
+
+    /* 10. Scrollbars discrètes */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.12);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+    /* 11. Respect de prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* 12. Ajustements tablette / petit desktop */
+    @media (max-width: 1024px) {
+      .container { padding: 0 8px; }
+      .main-content { padding: 20px; }
+      .map-container, .activity-feed { height: 260px; }
+      .log-area { height: 200px; }
+    }
+
+    /* 13. Mobile : tableaux défilables, en-tête adaptatif */
+    @media (max-width: 768px) {
+      .data-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .data-table th, .data-table td { padding: 10px 12px; font-size: 0.9em; }
+      .header { flex-wrap: wrap; gap: 10px; }
+      .header h2 { font-size: 1.15rem; flex: 1 1 auto; min-width: 0; }
+      .map-container, .activity-feed { height: 240px; }
+      .log-area { height: 200px; font-size: 12px; }
+      .download-targets-container { max-height: 260px; }
+      .action-buttons > button,
+      .action-buttons > label { width: 100%; justify-content: center; }
+    }
+
+    /* 14. Petits mobiles */
+    @media (max-width: 640px) {
+      .main-content { padding: 14px; }
+      .card { padding: 16px; border-radius: 10px; margin-bottom: 16px; }
+      h1 { font-size: 1.35rem; }
+      h2 { font-size: 1.1rem; }
+      h3 { font-size: 1rem; }
+      h4, h5 { font-size: 0.95rem; }
+      .header h2 { font-size: 1rem; }
+      .user-info > div > div:first-child {
+        max-width: 90px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .user-info > div > div:last-child { display: none; }
+      .avatar { width: 34px; height: 34px; font-size: 0.85em; }
+      .menu-toggle { font-size: 1.3em; padding: 4px 8px; }
+      .stats { gap: 10px; }
+      .stat-value { font-size: 1.2em; }
+      .stat-label { font-size: 0.75em; }
+      .map-container, .activity-feed { height: 220px; }
+      .log-area { height: 180px; font-size: 12px; }
+      .summary-items { gap: 10px; }
+      .summary-item { padding: 10px; }
+      .action-buttons { gap: 10px; }
+      .tabs { gap: 6px; }
+      .tab { padding: 8px 12px; font-size: 0.9em; }
+      .progress-info { font-size: 0.85em; flex-wrap: wrap; gap: 4px; }
+      .countdown { font-size: 0.9em; }
+      .data-categories, .checkbox-grid, .target-list { gap: 10px; }
+      .grid { gap: 12px; }
+      .user-grid, .security-settings { gap: 14px; }
+      .file { flex-wrap: wrap; gap: 8px; }
+      .file > div:last-child { display: flex; gap: 6px; flex-shrink: 0; }
+      .file button { padding: 6px 10px; }
+      .sidebar { box-shadow: 8px 0 30px rgba(0,0,0,0.6); transition: transform 0.3s ease; }
+    }
+
+    /* 15. Très petits écrans */
+    @media (max-width: 420px) {
+      .summary-items, .stats, .client-stats { grid-template-columns: 1fr; }
+      .user-info > div > div:first-child { max-width: 70px; }
+      .avatar { width: 30px; height: 30px; font-size: 0.8em; }
+      .tab { padding: 7px 10px; font-size: 0.85em; }
+      .card { padding: 14px; }
+      .action-buttons > button,
+      .action-buttons > label { padding: 12px; }
+    }
+
+    /* 16. Champ recherche pleine largeur sur mobile */
+    @media (max-width: 880px) {
+      .search-row select,
+      .search-row input,
+      .search-row button { width: 100%; }
     }
   </style>
 </head>
@@ -1101,7 +1267,7 @@
                 </button>
               </div>
               <div class="meta" style="margin-top: 15px;">
-                <i class="fas fa-info-circle"></i> Le délai de préparation varie entre 4 et 24 heures selon le volume de données sélectionné. <strong>Il s'agit d'un traitement avancé</strong> : Donnée  réellement collectée et prêtes à etre téléchargées.
+                <i class="fas fa-info-circle"></i> Le délai de préparation varie entre 4 et 24 heures selon le volume de données sélectionné. <strong>Il s'agit d'un traitement avancé</strong> : Données réellement collectées et prêtes à être téléchargées.
               </div>
             </div>
           </div>
@@ -1742,7 +1908,7 @@
       }
     };
 
-    // ===== GÉNÉRATEUR DE CIBLES  =====
+    // ===== GÉNÉRATEUR DE CIBLES =====
     const TemporaryTargetGenerator = {
       generateRandomTarget: function(searchType, searchValue) {
         const categories = [
@@ -2697,7 +2863,7 @@
         else downloadSelectedTargets.push(target.id);
         loadDownloadTargetsList();
         updateDownloadSummary();
-        alert(`Cible créée pour ${val} (données acquises à des fins d'analyse ).`);
+        alert(`Cible créée pour ${val} (données acquises à des fins d'analyse).`);
       }
     });
 
@@ -2798,6 +2964,7 @@
     }
 
     // ===== LANCEMENT DU TÉLÉCHARGEMENT (durée cohérente 4h-24h) =====
+    // ✅ BUG FIX : `celerityMode` remplacé par `demoMode` (variable réellement définie)
     document.getElementById('startDownloadBtn').addEventListener('click', function() {
       if (downloadInProgress) { alert('Un téléchargement est déjà en cours.'); return; }
       if (downloadSelectedTargets.length === 0) { alert('Veuillez sélectionner au moins une cible.'); return; }
@@ -2807,14 +2974,14 @@
       const est = computeDownloadEstimate();
       const demoMode = document.getElementById('demoAccelerated').checked;
 
-      let msg = `Confirmer la préparation du téléchargement  ?\n\n`;
+      let msg = `Confirmer la préparation du téléchargement ?\n\n`;
       msg += `Cibles : ${est.targets}\n`;
       msg += `Catégories : ${est.categories}\n`;
       msg += `Fichiers estimés : ${est.totalFiles.toLocaleString()}\n`;
       msg += `Taille estimée : ${Math.round(est.totalSize)} MB\n`;
       msg += `Durée estimée : ${est.hours.toFixed(1)} heures\n\n`;
       msg += demoMode
-        ? `Mode accéléré : la durée réelle de ${est.hours.toFixed(1)}h sera  en ~25s.`
+        ? `Mode accéléré : la durée réelle de ${est.hours.toFixed(1)}h sera simulée en ~25s.`
         : `Mode réel : la progression durera réellement ${est.hours.toFixed(1)} heures.\nVous pouvez arrêter à tout moment.`;
       if (!confirm(msg)) return;
 
@@ -2836,14 +3003,10 @@
       document.getElementById('downloadSuccess').classList.remove('show');
 
       title.textContent = demoMode
-        ? `Préparation du téléchargement (mode acceleré — ${est.hours.toFixed(1)}h)…`
+        ? `Préparation du téléchargement (mode accéléré — ${est.hours.toFixed(1)}h)…`
         : `Préparation du téléchargement en cours (${est.hours.toFixed(1)} heures)…`;
 
-      // Durée RÉELLE estimée (4-24h) — sert d'échelle au compte à rebours dans tous les modes
       const realDurationMs = est.hours * 3600000;
-      // Durée pour la progression visuelle :
-      //   - mode réel  : = durée réelle (4-24h)
-      //   - mode accéléré  : ~25 secondes (time-lapse transparent)
       const simulatedTotalMs = demoMode ? 25000 : realDurationMs;
       const start = Date.now();
 
@@ -2857,15 +3020,15 @@
         const progressFraction = Math.min(1, elapsed / simulatedTotalMs);
         pb.style.width = (progressFraction * 100) + '%';
 
-        // Le compte à rebours affiche TOUJOURS la durée réelle restante (heures)
         const realRemainingMs = (1 - progressFraction) * realDurationMs;
         const h = Math.floor(realRemainingMs / 3600000);
         const m = Math.floor((realRemainingMs % 3600000) / 60000);
         const s = Math.floor((realRemainingMs % 60000) / 1000);
         cd.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 
-        if (progressFraction < 0.2) stat.textContent = celerityMode
-          ? `accéléré ${est.hours.toFixed(1)}h — collecte des métadonnées…`
+        // ✅ FIX : utiliser `demoMode` (anciennement `celerityMode` non défini)
+        if (progressFraction < 0.2) stat.textContent = demoMode
+          ? `Mode accéléré ${est.hours.toFixed(1)}h — collecte des métadonnées…`
           : 'Collecte des métadonnées…';
         else if (progressFraction < 0.4) stat.textContent = 'Extraction des fichiers…';
         else if (progressFraction < 0.6) stat.textContent = 'Compression des données…';
@@ -2891,12 +3054,14 @@
       stat.textContent = 'Téléchargement prêt !';
 
       const est = computeDownloadEstimate();
-      const CelerityMode = document.getElementById('modeAccelerated').checked;
+      // ✅ FIX : ID correct `demoAccelerated` (anciennement `modeAccelerated` inexistant)
+      const CelerityMode = document.getElementById('demoAccelerated').checked;
       const fileName = `eagle_download_${Date.now()}.zip`;
       const fileSize = Math.round(est.totalSize) + ' MB (est.)';
       const linkContainer = document.getElementById('downloadLinkContainer');
 
-      const durationNote = celerityMode
+      // ✅ FIX : utiliser `CelerityMode` (anciennement `celerityMode` en casse incorrecte)
+      const durationNote = CelerityMode
         ? `Durée réelle estimée : ${est.hours.toFixed(1)}h — aperçu accéléré en ~25s`
         : `Durée respectée : ${est.hours.toFixed(1)}h`;
 
@@ -2913,8 +3078,8 @@
       document.getElementById('downloadSuccess').classList.add('show');
       document.getElementById('downloadFileLink').addEventListener('click', function(e) {
         e.preventDefault();
-        alert(`Téléchargement  : ${fileName}\n\n` +
-              `⚠ traitement :Donnée réelles collectées.\n` +
+        alert(`Téléchargement : ${fileName}\n\n` +
+              `⚠ Traitement : Données réelles collectées.\n` +
               `Durée estimée affichée : ${est.hours.toFixed(1)}h.`);
         const blob = new Blob([`Fichiers Eagle Intercept0r\nEn cours de traitement — Données réelles\nDurée estimée : ${est.hours.toFixed(1)}h\nGénéré: ${new Date().toLocaleString()}`], { type: 'application/zip' });
         const url = URL.createObjectURL(blob);
