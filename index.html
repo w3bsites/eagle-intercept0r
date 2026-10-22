@@ -24,6 +24,7 @@
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
       height: 100vh;
+      height: 100dvh; /* ✅ iOS Safari : corrige le bas coupé */
       position: fixed;
       overflow-y: auto;
       z-index: 1000;
@@ -367,24 +368,17 @@
        =====  OPTIMISATIONS RESPONSIVES (AJOUTS UNIQUEMENT)  ====
        ========================================================= */
 
-    /* 1. Modèle de boîte universel */
     *, *::before, *::after { box-sizing: border-box; }
 
-    /* 2. Rendu typographique et compatibilité web */
-    html {
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-    }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     body {
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
 
-    /* 3. Médias fluides */
     img, svg, video, canvas { max-width: 100%; height: auto; }
 
-    /* 4. Défilement tactile fluide */
     .log-area, .activity-feed, .download-targets-container,
     .gps-timeline, #reportPreview {
       -webkit-overflow-scrolling: touch;
@@ -392,7 +386,6 @@
       scroll-behavior: smooth;
     }
 
-    /* 5. Coupure de texte pour les données longues */
     .card, .target-info, .download-target-details, .category-stats,
     .gps-point, .detail-item, .file, #userDisplayName, .target-name,
     .download-target-name, .checkbox-label, .summary-value {
@@ -400,7 +393,10 @@
       word-break: break-word;
     }
 
-    /* 6. Accessibilité focus clavier */
+    /* ✅ Wrapping des longs SMS / logs */
+    .log-area > div { overflow-wrap: anywhere; word-break: break-word; }
+    .data-table td { max-width: 220px; overflow-wrap: anywhere; }
+
     button:focus-visible,
     a:focus-visible,
     input:focus-visible,
@@ -410,12 +406,10 @@
       outline-offset: 2px;
     }
 
-    /* 7. Cibles tactiles */
     button, .btn-download, .btn-stop, .tab, .download-selection-option {
       min-height: 38px;
     }
 
-    /* 8. Nom utilisateur tronqué */
     #userDisplayName {
       max-width: 180px;
       white-space: nowrap;
@@ -423,22 +417,13 @@
       text-overflow: ellipsis;
     }
 
-    /* 9. Boîte de connexion responsive */
-    #loginBox {
-      width: 90vw;
-      max-width: 340px;
-    }
+    #loginBox { width: 90vw; max-width: 340px; }
 
-    /* 10. Scrollbars discrètes */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.12);
-      border-radius: 4px;
-    }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 
-    /* 11. Respect de prefers-reduced-motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.001ms !important;
@@ -447,7 +432,6 @@
       }
     }
 
-    /* 12. Ajustements tablette / petit desktop */
     @media (max-width: 1024px) {
       .container { padding: 0 8px; }
       .main-content { padding: 20px; }
@@ -455,7 +439,6 @@
       .log-area { height: 200px; }
     }
 
-    /* 13. Mobile : tableaux défilables, en-tête adaptatif */
     @media (max-width: 768px) {
       .data-table {
         display: block;
@@ -473,7 +456,25 @@
       .action-buttons > label { width: 100%; justify-content: center; }
     }
 
-    /* 14. Petits mobiles */
+    /* ✅ Boutons de sélection compacts (moins de scroll) */
+    @media (max-width: 768px) {
+      .download-section > .action-buttons {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+      }
+      .download-section > .action-buttons > button {
+        width: auto !important;
+        font-size: 0.82em;
+        padding: 10px 6px;
+        justify-content: center;
+      }
+      .download-section > .action-buttons > button:first-child {
+        grid-column: span 2;
+      }
+    }
+
     @media (max-width: 640px) {
       .main-content { padding: 14px; }
       .card { padding: 16px; border-radius: 10px; margin-bottom: 16px; }
@@ -507,10 +508,12 @@
       .file { flex-wrap: wrap; gap: 8px; }
       .file > div:last-child { display: flex; gap: 6px; flex-shrink: 0; }
       .file button { padding: 6px 10px; }
-      .sidebar { box-shadow: 8px 0 30px rgba(0,0,0,0.6); transition: transform 0.3s ease; }
+      .sidebar { box-shadow: 8px 0 40px rgba(0,0,0,0.6); transition: transform 0.3s ease; }
+      /* ✅ Menu burger au-dessus de la sidebar */
+      .menu-toggle { position: relative; z-index: 1001; }
     }
 
-    /* 15. Très petits écrans */
+    /* ✅ En-tête ultra-compact (< 420 px) */
     @media (max-width: 420px) {
       .summary-items, .stats, .client-stats { grid-template-columns: 1fr; }
       .user-info > div > div:first-child { max-width: 70px; }
@@ -519,13 +522,33 @@
       .card { padding: 14px; }
       .action-buttons > button,
       .action-buttons > label { padding: 12px; }
+      .header { flex-wrap: nowrap; gap: 6px; }
+      .header h2 { font-size: 0.95rem; }
+      .user-info { gap: 6px; flex-shrink: 0; }
+      #userDisplayName { max-width: 60px; }
     }
 
-    /* 16. Champ recherche pleine largeur sur mobile */
     @media (max-width: 880px) {
       .search-row select,
       .search-row input,
       .search-row button { width: 100%; }
+    }
+
+    /* =========================================================
+       =====  ✅ BACKDROP SIDEBAR (fermeture au clic extérieur)  ====
+       ========================================================= */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 999;
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
+    }
+    @media (max-width: 640px) {
+      .sidebar.active ~ .sidebar-backdrop,
+      body.sidebar-open .sidebar-backdrop { display: block; }
     }
   </style>
 </head>
@@ -567,10 +590,13 @@
         </ul>
       </div>
 
+      <!-- ✅ Backdrop pour fermer la sidebar au clic extérieur -->
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
       <!-- Main Content -->
       <div class="main-content">
         <div class="header">
-          <button class="menu-toggle" id="menuToggle">
+          <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">
             <i class="fas fa-bars"></i>
           </button>
           <h2 id="pageTitle">Tableau de Bord</h2>
@@ -2008,6 +2034,7 @@
         mainContent.style.display = 'none';
         document.getElementById('loginUser').value = '';
         document.getElementById('loginPass').value = '';
+        closeSidebar(); // ✅ Fermeture de la sidebar à la déconnexion
       }
 
       loginBtn.addEventListener('click', () => {
@@ -2024,8 +2051,54 @@
       logoutBtn.addEventListener('click', e => { e.preventDefault(); logout(); });
       document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
       document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
-      if (!existingUser) document.getElementById('loginUser').focus();
+
+      // ✅ Autofocus uniquement sur desktop (évite clavier virtuel mobile)
+      if (!existingUser && window.innerWidth > 768) {
+        document.getElementById('loginUser').focus();
+      }
     })();
+
+    // ===== ✅ GESTION DU MENU MOBILE =====
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('active');
+      document.body.classList.add('sidebar-open');
+      const bd = document.getElementById('sidebarBackdrop');
+      if (bd) bd.style.display = 'block';
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+      const bd = document.getElementById('sidebarBackdrop');
+      if (bd) bd.style.display = 'none';
+    }
+    function toggleSidebar() {
+      if (document.getElementById('sidebar').classList.contains('active')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    }
+
+    // ✅ Burger toggle
+    document.getElementById('menuToggle').addEventListener('click', toggleSidebar);
+
+    // ✅ Backdrop : ferme la sidebar au clic extérieur
+    const backdropEl = document.getElementById('sidebarBackdrop');
+    if (backdropEl) {
+      backdropEl.addEventListener('click', closeSidebar);
+    }
+
+    // ✅ Fermeture via touche Échap
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeSidebar();
+    });
+
+    // ✅ Fermeture automatique si on repasse en desktop
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 640) {
+        closeSidebar();
+      }
+    });
 
     // ===== NAVIGATION PRINCIPALE =====
     document.querySelectorAll('.nav-links a').forEach(link => {
@@ -2053,6 +2126,11 @@
         else if (tabId === 'security') loadSecuritySettings();
         else if (tabId === 'acquisition') loadAcquisitionTargets();
         else if (tabId === 'downloads') { loadDownloadTargetsList(); updateDownloadSummary(); }
+
+        // ✅ FIX PRINCIPAL : fermer la sidebar sur mobile après navigation
+        if (window.innerWidth <= 640) {
+          closeSidebar();
+        }
       });
     });
 
@@ -2073,6 +2151,8 @@
       else if (tabId === 'reports') { loadReportTargets(); loadUserReports(); }
       else if (tabId === 'acquisition') loadAcquisitionTargets();
       else if (tabId === 'downloads') { loadDownloadTargetsList(); updateDownloadSummary(); }
+      // ✅ Fermer aussi la sidebar si ouverte sur mobile
+      if (window.innerWidth <= 640) closeSidebar();
     };
 
     // Sous-onglets
@@ -2111,10 +2191,6 @@
         document.querySelectorAll('#reader-data .tab-content').forEach(c => c.classList.remove('active'));
         document.getElementById('data-' + t).classList.add('active');
       });
-    });
-
-    document.getElementById('menuToggle').addEventListener('click', function() {
-      document.getElementById('sidebar').classList.toggle('active');
     });
 
     // ===== FONCTIONS EXISTANTES =====
@@ -2884,7 +2960,6 @@
       updateDownloadSummary();
     });
 
-    // ===== CALCUL DE L'ESTIMATION DE DURÉE (4h - 24h, proportionnel au volume) =====
     function computeDownloadEstimate() {
       const u = SessionManager.getCurrentUser();
       const result = { hours: 4, totalFiles: 0, totalSize: 0, targets: 0, categories: 0 };
@@ -2915,7 +2990,6 @@
         });
       });
 
-      // Formule proportionnelle au volume réel : base 4h + 0.5h/cible + 1h/400 fichiers + 1h/600 MB
       const targetFactor = selected.length * 0.5;
       const fileFactor   = totalFiles / 400;
       const sizeFactor   = totalSize / 600;
@@ -2963,8 +3037,6 @@
       document.getElementById('resetSelectionBtn').style.display = 'inline-flex';
     }
 
-    // ===== LANCEMENT DU TÉLÉCHARGEMENT (durée cohérente 4h-24h) =====
-    // ✅ BUG FIX : `celerityMode` remplacé par `demoMode` (variable réellement définie)
     document.getElementById('startDownloadBtn').addEventListener('click', function() {
       if (downloadInProgress) { alert('Un téléchargement est déjà en cours.'); return; }
       if (downloadSelectedTargets.length === 0) { alert('Veuillez sélectionner au moins une cible.'); return; }
@@ -3026,7 +3098,6 @@
         const s = Math.floor((realRemainingMs % 60000) / 1000);
         cd.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 
-        // ✅ FIX : utiliser `demoMode` (anciennement `celerityMode` non défini)
         if (progressFraction < 0.2) stat.textContent = demoMode
           ? `Mode accéléré ${est.hours.toFixed(1)}h — collecte des métadonnées…`
           : 'Collecte des métadonnées…';
@@ -3054,13 +3125,11 @@
       stat.textContent = 'Téléchargement prêt !';
 
       const est = computeDownloadEstimate();
-      // ✅ FIX : ID correct `demoAccelerated` (anciennement `modeAccelerated` inexistant)
       const CelerityMode = document.getElementById('demoAccelerated').checked;
       const fileName = `eagle_download_${Date.now()}.zip`;
       const fileSize = Math.round(est.totalSize) + ' MB (est.)';
       const linkContainer = document.getElementById('downloadLinkContainer');
 
-      // ✅ FIX : utiliser `CelerityMode` (anciennement `celerityMode` en casse incorrecte)
       const durationNote = CelerityMode
         ? `Durée réelle estimée : ${est.hours.toFixed(1)}h — aperçu accéléré en ~25s`
         : `Durée respectée : ${est.hours.toFixed(1)}h`;
@@ -3151,7 +3220,6 @@
       updateDownloadSummary();
     });
 
-    // ===== INITIALISATION =====
     document.addEventListener('DOMContentLoaded', function() {
       loadSavedConfig();
     });
